@@ -25,7 +25,7 @@ Just grab wavedisplay.js from this repository and include it in your project.
 
 ## Usage
 
-There is a demo.html file in the repository for you to play with.
+There is a demo in the form of a index.html file in the repository for you to play with.
 
 Obtain your number array by whatever means works for you. But here is one way
 ```
@@ -87,10 +87,10 @@ Use this if you want to control the zoom factor with a HTML slider or from other
 
 `WaveDisplay.getIndex(x)`
 
-Use this function when you want to obtain the sample index at a specific point in the wave form. This index is a float. I kept it that way so you can better target a sample with sub pixel precision. The value X would typically be the clientX property of the pointer event. You find an example in demo.html.
+Use this function when you want to obtain the sample index at a specific point in the wave form. This index is a float. I kept it that way so you can better target a sample with sub pixel precision. The value X would typically be the clientX property of the pointer event. You find an example in index.html.
 
 `WaveDisplay.getSeconds(x)`
 
-WaveDisplay can display any array of numbers. With audio we have time on one axis. The function returns a float representing the time from the start in seconds provided you passed the correct sampleRate in the options. You find an example in demo.html.
+WaveDisplay can display any array of numbers. With audio we have time on one axis. The function returns a float representing the time from the start in seconds provided you passed the correct sampleRate in the options. You find an example in index.html.
 
 
