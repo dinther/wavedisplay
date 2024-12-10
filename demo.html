@@ -52,7 +52,7 @@
             const audioContext = new AudioContext();
 
             // Get the audio data
-            fetch('./test_117_bpm.mp3')
+            fetch('./I_have_been_waiting_for_you.mp3')
                 .then(response => response.arrayBuffer())
                 .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
                 .then(audioBuffer => {
