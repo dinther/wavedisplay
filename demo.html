@@ -16,7 +16,7 @@
                 width: 100%;
             }
 
-            div {
+            #container {
                 height: 100px;
             }
 
@@ -60,7 +60,7 @@
                     let waveDisplay = new WaveDisplay({
                         data: audioBuffer.getChannelData(0),
                         parent: document.querySelector('#container'),
-                        samplesPerPoint: 30,
+                        samplesPerPoint: 60,
                         sampleRate: audioBuffer.sampleRate,
                         ZoomRate: 0.1
                     });
@@ -70,6 +70,11 @@
                     zoom.addEventListener('input', (e)=>{
                         waveDisplay.zoom(Number(e.target.value));
                     });
+
+                    // A way to obtain a time in seconds in the wave form.
+                    document.querySelector('#container').addEventListener('click', (e)=>{
+                        console.log('Time in seconds: ' + waveDisplay.getSeconds(e.clientX));
+                    }, { passive: false });
                 });
         </script>
     </body>
