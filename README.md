@@ -7,6 +7,11 @@ WaveDisplay will create the required HTML elements inside a container that you p
 The UI is very responsive because after it has rendered it is just a matter of changing the viewBox in order to zoom or scroll.
 WaveDisplay also support the mouse scrollwheel to zoom towards a data point.
 
+## Demo
+
+Every piece of library code must have a demo I think. so here it is.
+https://dinther.github.io/wavedisplay/
+
 ## installation
 
 Just grab wavedisplay.js from this repository and include it in your project.
