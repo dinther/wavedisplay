@@ -81,7 +81,7 @@ You can pass the following options in the WaveDisplay constructor:
 
 The following published methods can be used in your application: 
 
-`WaveDisplay.zoom(zoomFactor)`
+`WaveDisplay.zoom = zoomFactor`
 
 Use this if you want to control the zoom factor with a HTML slider or from other code. A zoom factor of 1 will render the entire waveform in the confines of the available container. A zoom factor of 2 will double the length of the graphic. A scrollbar will show up. Etc etc.
 
