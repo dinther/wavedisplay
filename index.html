@@ -4,49 +4,12 @@
 		<meta name="description" content="Beam editor for show lasers.">
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Beat alignment</title>
-		<style>
-            body {
-                margin: 0;
-                width: 100%;
-            }
-
-            input {
-                margin: 0;
-                width: 100%;
-            }
-
-            #container {
-                height: 100px;
-		background-color: #646464;
-            }
-
-            .scrollbar {
-                width: 100%;
-                height: 30px;
-                overflow-x: auto;
-                overflow-y: hidden;
-            }
-
-            .scrollbar div {
-                width: 100%;
-            }
-
-            .values-svg {
-                height: 100%;
-                width: 100%;
-                filter: drop-shadow(4px 3px 2px rgb(0 0 0));
-                fill: none;
-                stroke: white;
-                stroke-width: 0.5px;
-            }
-        </style>
+		<link rel="stylesheet" href="./svgtest.css" />
 	</head>
 	<body>
-        <input id="zoom" type="range" min="1" max="100" value="1" step="0.001"></input>
+        <input id="zoom" type="range" min="1" max="1000" value="1" step="0.001"></input>
+        <input id="scroll" type="range" min="0" max="1" value="0" step="0.00001"></input>
         <div id="container"></div>
-		<br><br>
-	<p>Move your mouse over the waveform and use your mouse scroll wheel to soom into a specific spot.</p>
-	<p>Accross the top is a slider input to zoom in.</p>
         <script type="module">
             import {WaveDisplay} from './wavedisplay.js';
 
@@ -55,7 +18,8 @@
             const audioContext = new AudioContext();
 
             // Get the audio data
-            fetch('./I_have_been_waiting_for_you.mp3')
+            //fetch('./I_have_been_waiting_for_you.mp3')
+            fetch('./Aurora-Ordinary_World_(Above_Beyond_remix).mp3')
                 .then(response => response.arrayBuffer())
                 .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
                 .then(audioBuffer => {
@@ -63,20 +27,24 @@
                     let waveDisplay = new WaveDisplay({
                         data: audioBuffer.getChannelData(0),
                         parent: document.querySelector('#container'),
-                        samplesPerPoint: 60,
+                        samplesPerPoint: 30,
                         sampleRate: audioBuffer.sampleRate,
-                        ZoomRate: 0.1
+                        zoomRate: 0.1,
+                        zeroIsMiddle: false,
                     });
+
+                    window['waveDisplay'] = waveDisplay;
 
                     // A way to implement an external zoom command
                     let zoom = document.querySelector('#zoom');
                     zoom.addEventListener('input', (e)=>{
-                        waveDisplay.zoom(Number(e.target.value));
+                        waveDisplay.zoom = Number(e.target.value);
                     });
-
+                
                     // A way to obtain a time in seconds in the wave form.
                     document.querySelector('#container').addEventListener('click', (e)=>{
-                        console.log('Time in seconds: ' + waveDisplay.getSeconds(e.clientX));
+                        //console.log('Time in seconds: ' + waveDisplay.getSeconds(e.clientX));
+                        //console.log('index: ' + waveDisplay.getIndex(e.clientX));
                     }, { passive: false });
                 });
         </script>
