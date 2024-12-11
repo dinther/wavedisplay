@@ -1,0 +1,78 @@
+input {
+    margin: 0;
+    width: 100%;
+}
+
+#container {
+    height: 196px;
+    background-color: #4a4a4a;
+    position: relative;
+    overflow-x: auto;
+    overflow-y: hidden;
+
+}
+
+.scrollbar {
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    height: 18px;
+}
+
+.scrollbar div {
+
+}
+
+.values-svg {
+    height: 100%;
+    width: 100%;
+    filter: drop-shadow(5px 5px 1px #000);
+    fill: none;
+    stroke: white;
+    stroke-width: 1.2px;
+}
+
+.scrollbar {
+    overflow: auto;
+
+}
+
+
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-button {
+  width: 9px;
+  height: 9px;
+}
+::-webkit-scrollbar-thumb {
+  background: #0075ff55;
+  border: 0px none #ff0000;
+  border-radius: 50px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #005bc2;
+}
+::-webkit-scrollbar-thumb:active {
+  background: #0075ff;
+}
+::-webkit-scrollbar-track {
+  background: #66666600;
+  border: 0px none #ffffff;
+  border-radius: 60px;
+}
+::-webkit-scrollbar-track:hover {
+  background: #ffffff33;
+}
+::-webkit-scrollbar-track:active {
+  background: #7ab8ff6d;
+}
+::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+
