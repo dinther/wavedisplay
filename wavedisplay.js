@@ -4,21 +4,19 @@ export class WaveDisplay{
         parent: document.body,
         samplesPerPoint: 60,
         sampleRate: 44100,
-        zoomRate: 0.1
+        zoomRate: 0.1,
     }
-
+    #parent;
     #svg;
-    #scrollbar;
     #data;
     #samplesPerPixel;
     #zoom = 1;
     #viewBox = {xmin:0, ymin:0, xmax:100, ymax:100};
     constructor(options){
         this.#options = {...this.#options, ...options};
+        this.#parent = this.#options.parent;
         this.#data = this.#options.data;
         this.#svg = this.#createSVG(this.#options.parent);
-        this.#scrollbar = this.#createScrollbar();
-        this.#scrollbar.children[0].style.width = (zoom.value * 100) + '%';
         this.#drawValues();
     }
 
@@ -30,40 +28,28 @@ export class WaveDisplay{
         svg.appendChild(path);
         svg.addEventListener('wheel', this.#handleWheel.bind(this), { passive: false });
         svg.addEventListener('click', this.#handleClick.bind(this), { passive: false });
-        this.#options.parent.appendChild(svg);
+        this.#parent.appendChild(svg);
         return svg;
     }
 
     #handleWheel(e){
         let lockIndex = this.getIndex(e.clientX);
+        //console.log('clientX ', e.clientX, 'lockindex',lockIndex);
         let zoom = Math.min(100, Math.max(1, this.#zoom * Math.exp(-e.deltaY / 80 * this.#options.zoomRate)));  
         this.#scrollZoom(zoom);
-        this.#scrollbar.scrollLeft  = (lockIndex - (e.clientX * this.#samplesPerPixel)) / this.#samplesPerPixel;
-        
+        this.#parent.scrollLeft  = (lockIndex - (e.clientX * this.#samplesPerPixel)) / this.#samplesPerPixel;
     }
 
     #handleClick(e){
-        let index = this.#samplesPerPixel * (e.clientX + this.#scrollbar.scrollLeft);
-        this.#scrollZoom(this.#zoom);
-    }
-
-    #createScrollbar(){
-        let scrollbar = document.createElement('div');
-        scrollbar.className = 'scrollbar';
-        let scrollbarRange = document.createElement('div');
-        scrollbar.appendChild(scrollbarRange);
-        this.#options.parent.appendChild(scrollbar);
-        scrollbar.addEventListener('scroll', (e)=>{
-            this.#scrollZoom(this.#zoom);
-        });
-        return scrollbar;
+        let index = this.getIndex(e.clientX);
+        let testLeft = (index - (e.clientX * this.#samplesPerPixel)) / this.#samplesPerPixel;
     }
 
     #scrollZoom(zoom){
         this.#zoom = Math.abs(zoom);
-        this.#scrollbar.children[0].style.width = (this.#zoom * 100) + '%';
-        let offset = this.#scrollbar.scrollLeft / this.#scrollbar.scrollWidth * this.#data.length;
-        this.#setViewBox(offset, null, this.#data.length / this.#zoom, null);
+        this.#svg.style.width = (this.#zoom * 100) + '%';
+        this.#samplesPerPixel = this.#data.length / this.#svg.clientWidth;
+        //console.log('samplesPerPixel',this.#samplesPerPixel);
     }
 
     #setViewBox(xmin, ymin, xmax, ymax){
@@ -71,8 +57,9 @@ export class WaveDisplay{
         this.#viewBox.ymin = ymin!=null? ymin : this.#viewBox.ymin;
         this.#viewBox.xmax = xmax!=null? xmax : this.#viewBox.xmax;
         this.#viewBox.ymax = ymax!=null? ymax : this.#viewBox.ymax;
-        this.#samplesPerPixel = this.#data.length / this.#scrollbar.children[0].offsetWidth;
         this.#svg.setAttribute('viewBox', this.#viewBox.xmin + ' ' +this.#viewBox.ymin + ' ' +this.#viewBox.xmax + ' ' + this.#viewBox.ymax);
+        this.#samplesPerPixel = this.#data.length / this.#svg.clientWidth;
+        //console.log('setViewBox - samplesPerPixel:', this.#samplesPerPixel, 'clientWidth:', this.#svg.clientWidth);
     }
 
     #drawValues(){
@@ -83,26 +70,60 @@ export class WaveDisplay{
         path += 'L';
         let minValue=null;
         let maxValue=null;
-        for (let i = 0; i < this.#data.length; i+=sampleStep) {
-            let value = 128 + this.#data[i] * 128;   
+
+        //  Find min and max
+        for (let i = 0; i < this.#data.length; i++) {
+            let value = this.#data[i];
             minValue = minValue == null? value : Math.min(minValue, value); 
             maxValue = maxValue == null? value : Math.max(maxValue, value);
+        }
+
+        let v = Math.max(Math.abs(maxValue), Math.abs(minValue));
+        maxValue = v;
+        minValue = -v;
+
+        for (let i = 0; i < this.#data.length; i+=sampleStep) {
+            let value = this.#data[i] * maxValue * h;
             path += i.toFixed(0) + ' ' + value.toFixed(0) + ' ';
         }
-        this.#setViewBox(0, minValue, this.#data.length, maxValue);
+
+        this.#setViewBox(0, minValue * h, this.#data.length, maxValue * h *2);
         this.#svg.querySelector('path').setAttribute('d', path);
         this.#svg.setAttribute('preserveAspectRatio', 'none');
     }
 
+    get data(){
+        return this.#data;
+    }
+
+    get parent(){
+        return this.#parent;
+    }
+
+    get svg(){
+        return this.#svg;
+    }
+
+    get viewBox(){
+        return this.#viewBox;
+    }
+
     getIndex(x){
-        return this.#samplesPerPixel * (x + this.#scrollbar.scrollLeft);
+        let index = this.#samplesPerPixel * (x + this.#parent.scrollLeft);
+       // console.log('getIndex - samplesPerPixel:',this.#samplesPerPixel,'x:',x,'scrollLeft:',this.#parent.scrollLeft, 'index:',index);
+        return index;
     }
 
     getSeconds(x){
         return this.getIndex(x) / this.#options.sampleRate;
     }
+    get zoom(){
+        this.#zoom;
+    }
 
-    zoom(value){
-        this.#scrollZoom(value);
+    set zoom(value){
+        if (value != this.#zoom){
+            this.#scrollZoom(value);    
+        }
     }
 }
