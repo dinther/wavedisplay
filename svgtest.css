@@ -7,18 +7,9 @@ input {
     height: 196px;
     background-color: #4a4a4a;
     position: relative;
-    overflow-x: auto;
+    overflow-x: scroll;
     overflow-y: hidden;
 
-}
-
-.scrollbar {
-    position: absolute;
-    bottom: 0px;
-    width: 100%;
-    overflow-x: auto;
-    overflow-y: hidden;
-    height: 18px;
 }
 
 .values-svg {
