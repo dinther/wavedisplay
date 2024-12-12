@@ -55,7 +55,7 @@ export class WaveDisplay{
             e.preventDefault();    
             //  inertia code
             if (this.#lastMoveTime != null){
-                this.#scrollSpeed = (e.pageX - this.#lastMoveX) * (e.timeStamp - this.#lastMoveTime);
+                this.#scrollSpeed = (e.pageX - this.#lastMoveX) * (e.timeStamp - this.#lastMoveTime) * 0.5;
             }
             this.#lastMoveTime = e.timeStamp;
             this.#lastMoveX = e.pageX;
@@ -125,8 +125,6 @@ export class WaveDisplay{
         let samples = this.#data.length / this.#options.samplesPerPoint;
         let h = this.#svg.parentElement.offsetHeight;
         const sampleStep = Math.floor(this.#data.length / samples);
-        let path = 'M0 100';
-        path += 'L';
         let minValue=null;
         let maxValue=null;
 
@@ -141,6 +139,7 @@ export class WaveDisplay{
         maxValue = v;
         minValue = -v;
 
+        let path = 'M0 100L';
         for (let i = 0; i < this.#data.length; i+=sampleStep) {
             let value = this.#data[i] * maxValue * h;
             path += i.toFixed(0) + ' ' + value.toFixed(0) + ' ';
