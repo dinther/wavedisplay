@@ -5,19 +5,78 @@ export class WaveDisplay{
         samplesPerPoint: 60,
         sampleRate: 44100,
         zoomRate: 0.1,
+        deceleration: 10,
     }
     #parent;
     #svg;
     #data;
     #samplesPerPixel;
     #zoom = 1;
+    #startX;
+    #scrollLeft = 0;
+    #mouseIsDown;
+    #lastMoveTime = null;
+    #lastMoveX = null;
+    #scrollSpeed;
     #viewBox = {xmin:0, ymin:0, xmax:100, ymax:100};
     constructor(options){
         this.#options = {...this.#options, ...options};
         this.#parent = this.#options.parent;
         this.#data = this.#options.data;
         this.#svg = this.#createSVG(this.#options.parent);
+
+        this.#parent.addEventListener('mousedown',e =>{
+            this.#mouseIsDown = true;
+            this.#scrollSpeed = 0;
+            this.#lastMoveTime = null;
+            this.#lastMoveX = null;
+            this.#startX = e.pageX - this.#parent.offsetLeft;
+            this.#scrollLeft = this.#parent.scrollLeft;
+        });  
+
+        this.#parent.addEventListener('mouseup',e =>{
+            if (e.timeStamp -  this.#lastMoveTime > 10){
+                this.#scrollSpeed = 0;
+                this.#lastMoveTime = null;
+                this.#lastMoveX = null;
+            }
+            
+            if (Math.abs(this.#scrollSpeed) > 1){
+                requestAnimationFrame(this.#keepScrolling.bind(this));
+            }
+            this.#mouseIsDown = false;
+        })
+        this.#parent.addEventListener('mouseleave',e=>{
+            this.#mouseIsDown = false;
+        });
+        
+        this.#parent.addEventListener('mousemove',e=>{
+            if(!this.#mouseIsDown) return;
+            e.preventDefault();    
+            //  inertia code
+            if (this.#lastMoveTime != null){
+                this.#scrollSpeed = (e.pageX - this.#lastMoveX) * (e.timeStamp - this.#lastMoveTime);
+            }
+            this.#lastMoveTime = e.timeStamp;
+            this.#lastMoveX = e.pageX;
+            const x = e.pageX - this.#parent.offsetLeft;
+            const walkX = x - this.#startX;
+            this.#parent.scrollLeft = this.#scrollLeft - walkX;
+        });
         this.#drawValues();
+    }
+
+    #keepScrolling(timeStamp){
+        let totalTime = (timeStamp - this.#lastMoveTime) / 1000;
+        let decelSpeed = this.#options.deceleration * totalTime;
+        if (this.#scrollSpeed > 0) decelSpeed *= -1;
+        if (Math.abs(this.#scrollSpeed) < Math.abs(decelSpeed)){
+            this.#scrollSpeed = 0;
+            console.log('stopped animation');
+            return;
+        }
+        this.#parent.scrollLeft -= this.#scrollSpeed + decelSpeed;
+        requestAnimationFrame(this.#keepScrolling.bind(this));
     }
 
     #createSVG(){
@@ -35,7 +94,7 @@ export class WaveDisplay{
     #handleWheel(e){
         let lockIndex = this.getIndex(e.clientX);
         //console.log('clientX ', e.clientX, 'lockindex',lockIndex);
-        let zoom = Math.min(100, Math.max(1, this.#zoom * Math.exp(-e.deltaY / 80 * this.#options.zoomRate)));  
+        let zoom = Math.min(500, Math.max(1, this.#zoom * Math.exp(-e.deltaY / 80 * this.#options.zoomRate)));  
         this.#scrollZoom(zoom);
         this.#parent.scrollLeft  = (lockIndex - (e.clientX * this.#samplesPerPixel)) / this.#samplesPerPixel;
     }
