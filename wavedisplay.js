@@ -42,7 +42,7 @@ export class WaveDisplay{
             this.#drawValues(this.#startIndex , this.#endIndex );
         });
 
-        this.#parent.addEventListener('pointerdown',e =>{
+        this.#svg.addEventListener('pointerdown',e =>{
             this.#mouseIsDown = true;
             this.#scrollSpeed = 0;
             this.#lastMoveTime = null;
@@ -51,7 +51,7 @@ export class WaveDisplay{
             this.#scrollLeft = this.#parent.scrollLeft;
         });  
 
-        this.#parent.addEventListener('pointerup',e =>{
+        this.#svg.addEventListener('pointerup',e =>{
             this.#mouseIsDown = false;
             if (e.timeStamp -  this.#lastMoveTime > 10){
                 this.#scrollSpeed = 0;
@@ -64,11 +64,11 @@ export class WaveDisplay{
             }
             this.#mouseIsDown = false;
         })
-        this.#parent.addEventListener('pointerleave',e=>{
+        this.#svg.addEventListener('pointerleave',e=>{
             this.#mouseIsDown = false;
         });
         
-        this.#parent.addEventListener('pointermove',e=>{
+        this.#svg.addEventListener('pointermove',e=>{
             console.log(e.buttons);
             this.#mouseIsDown = e.buttons!=0;
             if(!this.#mouseIsDown) return;
