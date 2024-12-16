@@ -24,6 +24,8 @@ export class WaveDisplay{
     #minValue;
     #maxValue;
     #scrollbar;
+    #evCache = [];
+    #prevDiff = -1;
     #viewBox = {xmin:0, ymin:0, xmax:100, ymax:100};
     constructor(options){
         this.#options = {...this.#options, ...options};
@@ -43,6 +45,7 @@ export class WaveDisplay{
         });
 
         this.#svg.addEventListener('pointerdown',e =>{
+            this.#evCache.push(e);
             this.#mouseIsDown = true;
             this.#scrollSpeed = 0;
             this.#lastMoveTime = null;
@@ -52,6 +55,7 @@ export class WaveDisplay{
         });  
 
         this.#svg.addEventListener('pointerup',e =>{
+            this.#removeEvent(e);
             this.#mouseIsDown = false;
             if (e.timeStamp -  this.#lastMoveTime > 10){
                 this.#scrollSpeed = 0;
@@ -63,13 +67,23 @@ export class WaveDisplay{
                 requestAnimationFrame(this.#keepScrolling.bind(this));
             }
             this.#mouseIsDown = false;
+
+            // If the number of pointers down is less than two then reset diff tracker
+            if (this.#evCache.length < 2) {
+                this.#prevDiff = -1;
+            }
         })
         this.#svg.addEventListener('pointerleave',e=>{
             this.#mouseIsDown = false;
         });
         
         this.#svg.addEventListener('pointermove',e=>{
-            console.log(e.clientX, e.buttons);
+            // Find this event in the cache and update its record with this event
+            const index = this.#evCache.findIndex(
+                (cachedEv) => cachedEv.pointerId === e.pointerId,
+            );
+            this.#evCache[index] = e;
+
             this.#mouseIsDown = e.buttons!=0;
             if(!this.#mouseIsDown){
                 return;
@@ -87,7 +101,30 @@ export class WaveDisplay{
             this.#startIndex = Math.min(this.#data.length - range, Math.max(0, this.#startIndex - (walkX * this.#samplesPerPixel)));
             this.#endIndex = this.#startIndex + range;
             this.#drawValues(this.#startIndex , this.#endIndex );
-            console.log('startIndex: ' + this.#startIndex);
+
+            //  Pinch to zoom
+            if (this.#evCache.length === 2) {
+                // Calculate the distance between the two pointers
+                const curDiff = Math.abs(this.#evCache[0].clientX - this.#evCache[1].clientX);
+                let along = ((this.#evCache[0].clientX + this.#evCache[1].clientX) / 2) / this.#svg.clientWidth;
+                if (this.#prevDiff > 0) {
+                  if (curDiff > this.#prevDiff) {
+                    // The distance between the two pointers has increased
+                    log("Pinch moving OUT -> Zoom in", ev);
+                    this.#setZoom(this.#zoom * 1.02);
+                    //ev.target.style.background = "pink";
+                  }
+                  if (curDiff < prevDiff) {
+                    // The distance between the two pointers has decreased
+                    log("Pinch moving IN -> Zoom out", ev);
+                    this.#setZoom(this.#zoom / 1.02);
+                    //ev.target.style.background = "lightblue";
+                  }
+                }
+            
+                // Cache the distance for the next move event
+                this.#prevDiff = curDiff;
+              }
         });
         this.#findMinMax();
         this.#startIndex = 0;
@@ -98,6 +135,14 @@ export class WaveDisplay{
             this.#drawValues(this.#startIndex, this.#endIndex);
         });
     }
+
+    #removeEvent(e) {
+        // Remove this event from the target's cache
+        const index = this.#evCache.findIndex(
+          (cachedEv) => cachedEv.pointerId === e.pointerId,
+        );
+        this.#evCache.splice(index, 1);
+      }
 
     #findMinMax(){
         for (let i = 0; i < this.#data.length; i++) {
