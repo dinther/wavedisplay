@@ -79,15 +79,39 @@ export class WaveDisplay{
         });
         
         this.#svg.addEventListener('pointermove',e=>{
-            // Find this event in the cache and update its record with this event
-            const index = this.#evCache.findIndex(
-                (cachedEv) => cachedEv.pointerId === e.pointerId,
-            );
-            this.#evCache[index] = e;
             if(e.buttons==0){
                 return;
             }
-            e.preventDefault();    
+            
+            // Find this event in the cache and update its record with this event
+            const index = this.#evCache.findIndex(
+                (cachedEv) => cachedEv.pointerId === e.pointerId,
+            );           
+            this.#evCache[index] = e;
+
+            e.preventDefault(); 
+            
+            //  Pinch to zoom
+            if (this.#evCache.length === 2) {
+                // Look at the distance between the two pointers
+                const curDiff = Math.abs(this.#evCache[0].clientX - this.#evCache[1].clientX);
+                let along = ((this.#evCache[0].clientX + this.#evCache[1].clientX) / 2) / this.#svg.clientWidth;
+                if (this.#prevDiff > 0) {
+                    if (curDiff > this.#prevDiff) {
+                        console.log("Pinch moving OUT -> Zoom in");
+                        this.#setZoom(this.#zoom * 1.02);
+                    }
+                    if (curDiff < this.#prevDiff) {
+                        console.log("Pinch moving IN -> Zoom out");
+                        this.#setZoom(this.#zoom / 1.02);
+                    }
+                    this.#scrollZoom(along);
+                } else {
+                    console.log('pinch to zoom started. initial prevDiff: ' + this.#prevDiff);
+                }
+                this.#prevDiff = curDiff;
+            }
+               
             //  inertia code
             if (this.#lastMoveTime != null){
                 this.#scrollSpeed = (e.clientX - this.#lastMoveX) * (e.timeStamp - this.#lastMoveTime) * 0.5;
@@ -100,28 +124,8 @@ export class WaveDisplay{
             this.#startIndex = Math.min(this.#data.length - range, Math.max(0, this.#startIndex - (walkX * this.#samplesPerPixel)));
             this.#endIndex = this.#startIndex + range;
             this.#drawValues(this.#startIndex , this.#endIndex );
-
-            //  Pinch to zoom
-            if (this.#evCache.length === 2) {
-                // Look at the distance between the two pointers
-                const curDiff = Math.abs(this.#evCache[0].clientX - this.#evCache[1].clientX);
-                let along = ((this.#evCache[0].clientX + this.#evCache[1].clientX) / 2) / this.#svg.clientWidth;
-                if (this.#prevDiff > 0) {
-                  if (curDiff > this.#prevDiff) {
-                    console.log("Pinch moving OUT -> Zoom in");
-                    this.#setZoom(this.#zoom * 1.02);
-                  }
-                  if (curDiff < this.#prevDiff) {
-                    console.log("Pinch moving IN -> Zoom out");
-                    this.#setZoom(this.#zoom / 1.02);
-                  }
-                  this.#scrollZoom(along);
-                } else {
-                    console.log('pinch to zoom started. initial prevDiff: ' + this.#prevDiff);
-                }
-                this.#prevDiff = curDiff;
-              }
         });
+        
         this.#findMinMax();
         this.#startIndex = 0;
         this.#endIndex = this.#data.length / this.#zoom;
