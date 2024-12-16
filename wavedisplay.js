@@ -137,8 +137,7 @@ export class WaveDisplay{
     }
 
     #pinchToZoomFinished = function(e){
-        this.#removeEvent(e);
-        if (this.#evCache.length == 0){
+        if (this.#removeEvent(e) && this.#evCache.length == 0){
             this.#zoomPinchMode = false;
             console.log('pinch to zoom ended.');;
         }
@@ -154,6 +153,7 @@ export class WaveDisplay{
           (cachedEv) => cachedEv.pointerId === e.pointerId,
         );
         this.#evCache.splice(index, 1);
+        return index > -1;
       }
 
     #findMinMax(){
