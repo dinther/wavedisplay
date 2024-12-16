@@ -104,6 +104,7 @@ p {
     font-family: 'Courier New', Courier, monospace;
     border: 1px solid black;
     flex: 3;
+    padding: 4px;
     overflow: auto;
 }
 
