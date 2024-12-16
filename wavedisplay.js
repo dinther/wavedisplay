@@ -22,8 +22,10 @@ export class WaveDisplay{
     #minValue;
     #maxValue;
     #scrollbar;
+    #zoomPinchMode = false;
     #evCache = [];
-    #prevDiff = -1;
+    #startLeftLock = -1;
+    #startRightLock = -1;
     #viewBox = {xmin:0, ymin:0, xmax:100, ymax:100};
     constructor(options){
         this.#options = {...this.#options, ...options};
@@ -52,8 +54,8 @@ export class WaveDisplay{
         });  
 
         this.#svg.addEventListener('pointerup',e =>{
-            this.#removeEvent(e);
-            if (e.timeStamp -  this.#lastMoveTime > 10){
+            
+            if ( this.#zoomPinchMode || e.timeStamp -  this.#lastMoveTime > 10 ){
                 this.#scrollSpeed = 0;
                 this.#lastMoveTime = null;
                 this.#lastMoveX = null;
@@ -62,7 +64,6 @@ export class WaveDisplay{
             if (Math.abs(this.#scrollSpeed) > 1){
                 requestAnimationFrame(this.#keepScrolling.bind(this));
             }
-
             this.#pinchToZoomFinished(e);
         });
 
@@ -93,23 +94,22 @@ export class WaveDisplay{
             
             //  Pinch to zoom
             if (this.#evCache.length === 2) {
-                // Look at the distance between the two pointers
-                const curDiff = Math.abs(this.#evCache[0].clientX - this.#evCache[1].clientX);
-                let along = ((this.#evCache[0].clientX + this.#evCache[1].clientX) / 2) / this.#svg.clientWidth;
-                if (this.#prevDiff > 0) {
-                    if (curDiff > this.#prevDiff) {
-                        console.log("Pinch moving OUT -> Zoom in");
-                        this.#setZoom(this.#zoom * (1 + this.#options.zoomRate));
-                    }
-                    if (curDiff < this.#prevDiff) {
-                        console.log("Pinch moving IN -> Zoom out");
-                        this.#setZoom(this.#zoom / (1 + this.#options.zoomRate));
-                    }
-                    this.#scrollZoom(along);
-                } else {
-                    console.log('pinch to zoom started. initial prevDiff: ' + this.#prevDiff);
+                this.#zoomPinchMode = true;
+                const leftPos = Math.min(this.#evCache[0].clientX , this.#evCache[1].clientX);
+                const rightPos = Math.max(this.#evCache[0].clientX , this.#evCache[1].clientX)
+                if (this.#startLeftLock < 0 || this.#startRightLock < 0){
+                    this.#startLeftLock =  this.#startIndex + (this.#samplesPerPixel * leftPos);
+                    this.#startRightLock = this.#startIndex + (this.#samplesPerPixel * rightPos);
+                    console.log('pinch to zoom started.');
                 }
-                this.#prevDiff = curDiff;
+
+                // Look at the distance between the two pointers
+                const lockRange = this.#startRightLock - this.#startLeftLock;
+                const pixelRange = rightPos - leftPos;
+                const samplesPerPoint = lockRange / pixelRange;
+                this.#startIndex = Math.min(this.#data.length - rangeMath.max(0, ~~(this.#startLeftLock - (leftPos * samplesPerPoint))));
+                this.#endIndex = this.#startIndex + (this.#svg.clientWidth * samplesPerPoint);
+                this.#drawValues(this.#startIndex, this.#endIndex);
             }
                
             //  inertia code
@@ -138,8 +138,13 @@ export class WaveDisplay{
 
     #pinchToZoomFinished = function(e){
         this.#removeEvent(e);
+        if (this.#evCache.length == 0){
+            this.#zoomPinchMode = false;
+            console.log('pinch to zoom ended.');;
+        }
         if (this.#evCache.length < 2) {
-            this.#prevDiff = -1;
+            this.#startLeftLock = -1;
+            this.#startRightLock = -1;
         }
     }
 
