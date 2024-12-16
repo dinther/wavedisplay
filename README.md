@@ -14,6 +14,9 @@ WaveDisplay also has scroll inertia. You can grab the wave form and give it a go
 Every piece of library code must have a demo I think. so here it is.
 https://dinther.github.io/wavedisplay/
 
+![image](https://github.com/user-attachments/assets/dcb55ccf-a99d-4097-81e3-942e39e49d0a)
+
+
 ## installation
 
 Just grab wavedisplay.js from this repository and include it in your project.
@@ -61,9 +64,6 @@ let waveDisplay = new WaveDisplay({
   zoomRate: 0.1
 });
 ```
-
-![{AE331C41-21DA-40C1-9ED5-D566B9C2F7FD}](https://github.com/user-attachments/assets/ab2eecef-cd05-449c-a762-9a7e5fe1963c)
-
 
 That it. WaveDisplay creates the required HTML elements inside the parent container you provide and renders your data in SVG.
 Throw your own CSS at it to suit.
