@@ -69,13 +69,13 @@ export class WaveDisplay{
         });
         
         this.#svg.addEventListener('pointermove',e=>{
-            console.log(e.buttons);
+            console.log(e.clientX);
             this.#mouseIsDown = e.buttons!=0;
             if(!this.#mouseIsDown) return;
             e.preventDefault();    
             //  inertia code
             if (this.#lastMoveTime != null){
-                this.#scrollSpeed = (e.pageX - this.#lastMoveX) * (e.timeStamp - this.#lastMoveTime) * 0.5;
+                this.#scrollSpeed = (e.clientX - this.#lastMoveX) * (e.timeStamp - this.#lastMoveTime) * 0.5;
             }
             this.#lastMoveTime = e.timeStamp;
             this.#lastMoveX = e.pageX;
