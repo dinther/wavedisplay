@@ -35,6 +35,12 @@ export class WaveDisplay{
         this.#scrollbar.classList.add('scrollbar');
         this.#scrollbar.appendChild(document.createElement('div'));
         this.#options.parent.appendChild(this.#scrollbar);
+        this.#scrollbar.addEventListener('scroll', e=>{
+            let range = this.#endIndex - this.#startIndex;
+            this.#startIndex = Math.min(this.#data.length - range, Math.max(0, this.#scrollbar.scrollLeft * this.#samplesPerPixel));
+            this.#endIndex = this.#startIndex + range;
+            this.#drawValues(this.#startIndex , this.#endIndex );
+        });
 
         this.#parent.addEventListener('pointerdown',e =>{
             this.#mouseIsDown = true;
