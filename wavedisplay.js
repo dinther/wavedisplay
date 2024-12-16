@@ -16,8 +16,6 @@ export class WaveDisplay{
     #endIndex;
     #zoom = 1;
     #startX;
-    #scrollLeft = 0;
-    #mouseIsDown;
     #lastMoveTime = null;
     #lastMoveX = null;
     #scrollSpeed;
@@ -46,17 +44,16 @@ export class WaveDisplay{
 
         this.#svg.addEventListener('pointerdown',e =>{
             this.#evCache.push(e);
-            this.#mouseIsDown = true;
             this.#scrollSpeed = 0;
             this.#lastMoveTime = null;
             this.#lastMoveX = null;
             this.#startX = e.clientX;
-            this.#scrollLeft = this.#parent.scrollLeft;
         });  
+
+
 
         this.#svg.addEventListener('pointerup',e =>{
             this.#removeEvent(e);
-            this.#mouseIsDown = false;
             if (e.timeStamp -  this.#lastMoveTime > 10){
                 this.#scrollSpeed = 0;
                 this.#lastMoveTime = null;
@@ -66,15 +63,20 @@ export class WaveDisplay{
             if (Math.abs(this.#scrollSpeed) > 1){
                 requestAnimationFrame(this.#keepScrolling.bind(this));
             }
-            this.#mouseIsDown = false;
 
-            // If the number of pointers down is less than two then reset diff tracker
-            if (this.#evCache.length < 2) {
-                this.#prevDiff = -1;
-            }
-        })
+            this.#pinchToZoomFinished();
+        });
+
+        this.#svg.addEventListener('pointercancel',e=>{
+            this.#pinchToZoomFinished();
+        });
+
+        this.#svg.addEventListener('pointerout',e=>{
+            this.#pinchToZoomFinished();
+        });
+
         this.#svg.addEventListener('pointerleave',e=>{
-            this.#mouseIsDown = false;
+            this.#pinchToZoomFinished();
         });
         
         this.#svg.addEventListener('pointermove',e=>{
@@ -83,9 +85,7 @@ export class WaveDisplay{
                 (cachedEv) => cachedEv.pointerId === e.pointerId,
             );
             this.#evCache[index] = e;
-
-            this.#mouseIsDown = e.buttons!=0;
-            if(!this.#mouseIsDown){
+            if(e.buttons==0){
                 return;
             }
             e.preventDefault();    
@@ -134,6 +134,12 @@ export class WaveDisplay{
         window.addEventListener("resize", (event) => {
             this.#drawValues(this.#startIndex, this.#endIndex);
         });
+    }
+
+    #pinchToZoomFinished = function(){
+        if (this.#evCache.length < 2) {
+            this.#prevDiff = -1;
+        }
     }
 
     #removeEvent(e) {
