@@ -4,8 +4,10 @@ Work in progress but pretty tidy as it is. you want this if you need a fast and 
 WaveDisplay is a javascript class with no dependencies. In the constructor you pass a number array and various other options to suit.
 WaveDisplay will create the required HTML elements inside a container that you pass and render the waveform to SVG.
 
-The UI is very responsive because after it has rendered it is just a matter of changing the viewBox in order to zoom or scroll.
-WaveDisplay also support the mouse scrollwheel to zoom towards a data point.
+The UI is very responsive because it only renders the data that is visible. This also means there is no limit to how much audio data this control can hold.
+
+All the usual scroll and zoom functions are implemented. Zoom To where you point at using the mouse scrollwheel. For touch screen there is pinch to zoom.
+WaveDisplay also has scroll inertia. You can grab the wave form and give it a good push which causes it to keep going but gradually slow down.
 
 ## Demo
 
