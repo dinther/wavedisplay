@@ -1,3 +1,7 @@
+* {
+    box-sizing: border-box;
+}
+
 /* Firefox (uncomment to work in Firefox, although other properties will not work!)  */
 /** {
   scrollbar-width: thin;
@@ -9,6 +13,7 @@
     height: 10px;
     width: 10px;
   }
+
   *::-webkit-scrollbar-track {
     border-radius: 5px;
     background-color: #DFE9EB00;
@@ -35,9 +40,25 @@
     background-color: #0075FF;
   }
 
+body {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 10px;
+    height: 100vh;
+}
+
+#zoomlbl {
+
+}
+
 input {
     margin: 0;
     width: 100%;
+}
+
+p {
+    margin: 8px;
 }
 
 #container {
@@ -73,6 +94,12 @@ input {
 
 .scrollbar div{
     pointer-events: none;
+}
+
+#log {
+    font-family: 'Courier New', Courier, monospace;
+    border: 1px solid black;
+    flex: 3;
 }
 
 
