@@ -78,7 +78,7 @@ export class WaveDisplay{
                 this.#scrollSpeed = (e.clientX - this.#lastMoveX) * (e.timeStamp - this.#lastMoveTime) * 0.5;
             }
             this.#lastMoveTime = e.timeStamp;
-            this.#lastMoveX = e.pageX;
+            this.#lastMoveX = e.clientX;
             const walkX = e.clientX - this.#startX;
             this.#startX += walkX;
             let range = this.#endIndex - this.#startIndex;
