@@ -53,7 +53,6 @@ export class WaveDisplay{
             this.#lastMoveTime = null;
             this.#lastMoveX = null;
             this.#startX = e.clientX;
-            console.log('eventCache.length: ' + this.#evCache.length);
         });  
 
         this.#svg.addEventListener('pointerup',e =>{
