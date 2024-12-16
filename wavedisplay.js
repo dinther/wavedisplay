@@ -48,7 +48,6 @@ export class WaveDisplay{
             this.#lastMoveTime = null;
             this.#lastMoveX = null;
             this.#startX = e.clientX;
-            this.#evCache.push(e);
             console.log('eventCache.length: ' + this.#evCache.length);
         });  
 
