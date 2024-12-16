@@ -7,10 +7,11 @@
 		<link rel="stylesheet" href="./svgtest.css" />
 	</head>
 	<body>
-        <input id="zoom" type="range" min="1" max="3000" value="1" step="0.001"></input>
+        <label id="zoomlbl">Zoom<input id="zoom" type="range" min="1" max="3000" value="1" step="0.001"></input></label>
         <div id="container"></div>
         <p>Use mouse wheel to zoom to where you point into the wave form.</p>
         <p>Use the scroll bar or drag to scroll the wave form itself. You can also drag and throw the waveform. Inertia keeps it going for a bit.</p>
+        <div id = "log"><p id="logLabel">Log</p></div>
         <script type="module">
             import {WaveDisplay} from './wavedisplay.js';
 
@@ -55,6 +56,23 @@
                         //console.log('startIndex: ' + waveDisplay.startIndex, 'endIndex: ' + waveDisplay.endIndex)
                     }, { passive: false });
                 });
+
+            if (typeof console  != "undefined") 
+            if (typeof console.log != 'undefined')
+                console.olog = console.log;
+            else
+                console.olog = function() {};
+
+            console.log = function(message) {
+                console.olog(message);
+                $('#logLabel').insertAdjacentHTML(
+                    'afterend', 
+                    '<p>' + message + '</p>'
+                );
+                
+                //appendChild('<p>' + message + '</p>');
+            };
+            console.error = console.debug = console.info =  console.log
         </script>
     </body>
 </html>
