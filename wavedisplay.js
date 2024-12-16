@@ -50,8 +50,6 @@ export class WaveDisplay{
             this.#startX = e.clientX;
         });  
 
-
-
         this.#svg.addEventListener('pointerup',e =>{
             this.#removeEvent(e);
             if (e.timeStamp -  this.#lastMoveTime > 10){
