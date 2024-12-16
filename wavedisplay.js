@@ -36,7 +36,7 @@ export class WaveDisplay{
         this.#scrollbar.appendChild(document.createElement('div'));
         this.#options.parent.appendChild(this.#scrollbar);
 
-        this.#parent.addEventListener('mousedown',e =>{
+        this.#parent.addEventListener('pointerdown',e =>{
             this.#mouseIsDown = true;
             this.#scrollSpeed = 0;
             this.#lastMoveTime = null;
@@ -45,7 +45,7 @@ export class WaveDisplay{
             this.#scrollLeft = this.#parent.scrollLeft;
         });  
 
-        this.#parent.addEventListener('mouseup',e =>{
+        this.#parent.addEventListener('pointerup',e =>{
             this.#mouseIsDown = false;
             if (e.timeStamp -  this.#lastMoveTime > 10){
                 this.#scrollSpeed = 0;
@@ -58,11 +58,12 @@ export class WaveDisplay{
             }
             this.#mouseIsDown = false;
         })
-        this.#parent.addEventListener('mouseleave',e=>{
+        this.#parent.addEventListener('pointerleave',e=>{
             this.#mouseIsDown = false;
         });
         
-        this.#parent.addEventListener('mousemove',e=>{
+        this.#parent.addEventListener('pointermove',e=>{
+            console.log(e.buttons);
             this.#mouseIsDown = e.buttons!=0;
             if(!this.#mouseIsDown) return;
             e.preventDefault();    
