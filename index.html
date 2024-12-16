@@ -11,7 +11,8 @@
         <div id="container"></div>
         <p>Use mouse wheel to zoom to where you point into the wave form.</p>
         <p>Use the scroll bar or drag to scroll the wave form itself. You can also drag and throw the waveform. Inertia keeps it going for a bit.</p>
-        <div id = "log"><p id="logLabel">Log</p></div>
+        <div id="logHeader"><span>Log</span><a href="#" onClick="document.querySelector('#log').innerHTML = '';">clear</a></div>
+        <div id = "log"></div>
         <script type="module">
             import {WaveDisplay} from './wavedisplay.js';
 
@@ -62,15 +63,15 @@
                 console.olog = console.log;
             else
                 console.olog = function() {};
+            
+            var logDiv = document.querySelector('#log');
 
             console.log = function(message) {
                 console.olog(message);
-                $('#logLabel').insertAdjacentHTML(
-                    'afterend', 
-                    '<p>' + message + '</p>'
+                logDiv.insertAdjacentHTML(
+                    'afterbegin', 
+                    '<div>' + message + '</div>'
                 );
-                
-                //appendChild('<p>' + message + '</p>');
             };
             console.error = console.debug = console.info =  console.log
         </script>
