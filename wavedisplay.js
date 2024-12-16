@@ -4,13 +4,16 @@ export class WaveDisplay{
         parent: document.body,
         samplesPerPoint: 60,
         sampleRate: 44100,
-        zoomRate: 0.1,
+        zoomRate: 0.01,
         deceleration: 10,
     }
     #parent;
     #svg;
     #data;
+    #peaks;
     #samplesPerPixel;
+    #startIndex;
+    #endIndex;
     #zoom = 1;
     #startX;
     #scrollLeft = 0;
@@ -18,23 +21,32 @@ export class WaveDisplay{
     #lastMoveTime = null;
     #lastMoveX = null;
     #scrollSpeed;
+    #minValue;
+    #maxValue;
+    #scrollbar;
     #viewBox = {xmin:0, ymin:0, xmax:100, ymax:100};
     constructor(options){
         this.#options = {...this.#options, ...options};
         this.#parent = this.#options.parent;
         this.#data = this.#options.data;
+            
         this.#svg = this.#createSVG(this.#options.parent);
+        this.#scrollbar = document.createElement('div');
+        this.#scrollbar.classList.add('scrollbar');
+        this.#scrollbar.appendChild(document.createElement('div'));
+        this.#options.parent.appendChild(this.#scrollbar);
 
         this.#parent.addEventListener('mousedown',e =>{
             this.#mouseIsDown = true;
             this.#scrollSpeed = 0;
             this.#lastMoveTime = null;
             this.#lastMoveX = null;
-            this.#startX = e.pageX - this.#parent.offsetLeft;
+            this.#startX = e.clientX;
             this.#scrollLeft = this.#parent.scrollLeft;
         });  
 
         this.#parent.addEventListener('mouseup',e =>{
+            this.#mouseIsDown = false;
             if (e.timeStamp -  this.#lastMoveTime > 10){
                 this.#scrollSpeed = 0;
                 this.#lastMoveTime = null;
@@ -51,6 +63,7 @@ export class WaveDisplay{
         });
         
         this.#parent.addEventListener('mousemove',e=>{
+            this.#mouseIsDown = e.buttons!=0;
             if(!this.#mouseIsDown) return;
             e.preventDefault();    
             //  inertia code
@@ -59,11 +72,29 @@ export class WaveDisplay{
             }
             this.#lastMoveTime = e.timeStamp;
             this.#lastMoveX = e.pageX;
-            const x = e.pageX - this.#parent.offsetLeft;
-            const walkX = x - this.#startX;
-            this.#parent.scrollLeft = this.#scrollLeft - walkX;
+            const walkX = e.clientX - this.#startX;
+            this.#startX += walkX;
+            let range = this.#endIndex - this.#startIndex;
+            this.#startIndex = Math.min(this.#data.length - range, Math.max(0, this.#startIndex - (walkX * this.#samplesPerPixel)));
+            this.#endIndex = this.#startIndex + range;
+            this.#drawValues(this.#startIndex , this.#endIndex );
         });
-        this.#drawValues();
+        this.#findMinMax();
+        this.#startIndex = 0;
+        this.#endIndex = this.#data.length / this.#zoom;
+        this.#drawValues(this.#startIndex, this.#endIndex);
+
+        window.addEventListener("resize", (event) => {
+            this.#drawValues(this.#startIndex, this.#endIndex);
+        });
+    }
+
+    #findMinMax(){
+        for (let i = 0; i < this.#data.length; i++) {
+            let value = this.#data[i];
+            this.#minValue = this.#minValue == null? value : Math.min(this.#minValue, value); 
+            this.#maxValue = this.#maxValue == null? value : Math.max(this.#maxValue, value);
+        }
     }
 
     #keepScrolling(timeStamp){
@@ -72,10 +103,13 @@ export class WaveDisplay{
         if (this.#scrollSpeed > 0) decelSpeed *= -1;
         if (Math.abs(this.#scrollSpeed) < Math.abs(decelSpeed)){
             this.#scrollSpeed = 0;
-            console.log('stopped animation');
             return;
         }
-        this.#parent.scrollLeft -= this.#scrollSpeed + decelSpeed;
+        let range = this.#endIndex - this.#startIndex;     
+        this.#startIndex = Math.min(this.#data.length - range, Math.max(0, ~~(this.#startIndex - (this.#scrollSpeed + decelSpeed) * this.#samplesPerPixel)));
+        this.#endIndex = this.#startIndex + range;
+        this.#drawValues(this.#startIndex , this.#endIndex );
+        this.#scrollbar.scrollLeft = this.#startIndex / this.#samplesPerPixel;
         requestAnimationFrame(this.#keepScrolling.bind(this));
     }
 
@@ -84,31 +118,43 @@ export class WaveDisplay{
         svg.classList.add('values-svg');
         const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
         path.setAttribute('d', 'M0 0L100 0 100 32 0 32 0 0');
+        svg.setAttribute('preserveAspectRatio', 'none');
         svg.appendChild(path);
         svg.addEventListener('wheel', this.#handleWheel.bind(this), { passive: false });
-        svg.addEventListener('click', this.#handleClick.bind(this), { passive: false });
         this.#parent.appendChild(svg);
         return svg;
     }
 
     #handleWheel(e){
-        let lockIndex = this.getIndex(e.clientX);
-        //console.log('clientX ', e.clientX, 'lockindex',lockIndex);
-        let zoom = Math.min(500, Math.max(1, this.#zoom * Math.exp(-e.deltaY / 80 * this.#options.zoomRate)));  
-        this.#scrollZoom(zoom);
-        this.#parent.scrollLeft  = (lockIndex - (e.clientX * this.#samplesPerPixel)) / this.#samplesPerPixel;
+        //let zoom = Math.max(1, this.#zoom * Math.exp(-e.deltaY / 80 * this.#options.zoomRate));
+        this.#setZoom(this.#zoom * Math.exp(-e.deltaY / 80 * this.#options.zoomRate));
+        let along = e.clientX / this.#svg.clientWidth;
+        this.#scrollZoom(along);
     }
 
-    #handleClick(e){
-        let index = this.getIndex(e.clientX);
-        let testLeft = (index - (e.clientX * this.#samplesPerPixel)) / this.#samplesPerPixel;
+    #setZoom(value){
+        let clampedValue  = Math.min(Math.max(1, value), waveDisplay.maxZoom);
+        if (clampedValue  !== this.#zoom){
+            this.#zoom = clampedValue ;
+            return true;
+        }
+        return false;
     }
 
-    #scrollZoom(zoom){
-        this.#zoom = Math.abs(zoom);
-        this.#svg.style.width = (this.#zoom * 100) + '%';
-        this.#samplesPerPixel = this.#data.length / this.#svg.clientWidth;
-        //console.log('samplesPerPixel',this.#samplesPerPixel);
+    #scrollZoom(along = 0.5){
+        //zoom = Math.abs(zoom);
+        let oldRange = this.#endIndex - this.#startIndex;
+        let lockIndex = this.#startIndex + ~~(along * oldRange);
+        //this.#zoom = Math.min(this.maxzoom, zoom);
+        let newRange = this.#data.length / this.#zoom;
+        this.#samplesPerPixel = newRange / this.#svg.clientWidth / this.#zoom;
+        this.#startIndex = Math.max(0, lockIndex - ~~(newRange * along));
+        this.#endIndex = Math.min(this.#data.length, ~~(this.#startIndex + newRange));
+        this.#drawValues(this.#startIndex, this.#endIndex);
+
+        //let range = this.#endIndex - this.#startIndex;
+        this.#scrollbar.children[0].style.width = (this.#data.length / this.#samplesPerPixel) + 'px';
+        this.#scrollbar.scrollLeft = this.#startIndex / this.#samplesPerPixel;
     }
 
     #setViewBox(xmin, ymin, xmax, ymax){
@@ -117,38 +163,50 @@ export class WaveDisplay{
         this.#viewBox.xmax = xmax!=null? xmax : this.#viewBox.xmax;
         this.#viewBox.ymax = ymax!=null? ymax : this.#viewBox.ymax;
         this.#svg.setAttribute('viewBox', this.#viewBox.xmin + ' ' +this.#viewBox.ymin + ' ' +this.#viewBox.xmax + ' ' + this.#viewBox.ymax);
-        this.#samplesPerPixel = this.#data.length / this.#svg.clientWidth;
-        //console.log('setViewBox - samplesPerPixel:', this.#samplesPerPixel, 'clientWidth:', this.#svg.clientWidth);
+        this.#samplesPerPixel = this.#data.length / this.#svg.clientWidth / this.#zoom;
     }
 
-    #drawValues(){
-        let samples = this.#data.length / this.#options.samplesPerPoint;
-        let h = this.#svg.parentElement.offsetHeight;
-        const sampleStep = Math.floor(this.#data.length / samples);
-        let minValue=null;
-        let maxValue=null;
+    #getPeaks(startIndex, endIndex, pointCount){
+        this.#peaks = [];
+        let range = endIndex - startIndex;
+        let sampleStep = Math.max(1, ~~(range / pointCount));
+        let avgSampleCount = 50;
+        startIndex = ~~(startIndex / (sampleStep * 2)) * sampleStep * 2;
+        let firstPeakIndex = null;
+        for (let i=0; i < pointCount; i++){
+            let yMax= 0;
+            let sampleCount = Math.min(sampleStep, avgSampleCount);
+            let step = Math.max(1,~~(sampleStep / avgSampleCount));
+            for (let j = 0; j < sampleCount; j++){
+                let index = startIndex + (i * sampleStep) + ~~(j*step);
+                if (firstPeakIndex==null) firstPeakIndex = index;
+                yMax = Math.max(yMax, Math.abs(this.#data[index]));
+            }
+            this.#peaks[i] = yMax;
+        }
+        return {firstIndex: firstPeakIndex, peaks: this.#peaks};
+    }
 
-        //  Find min and max
-        for (let i = 0; i < this.#data.length; i++) {
-            let value = this.#data[i];
-            minValue = minValue == null? value : Math.min(minValue, value); 
-            maxValue = maxValue == null? value : Math.max(maxValue, value);
+    #drawValues(startIndex, endIndex){
+        let pixelStep = 2;        
+        let pointCount = ~~(this.#svg.parentElement.offsetWidth / pixelStep);
+        let peaks = this.#getPeaks(startIndex, endIndex, pointCount).peaks;
+        let v = Math.max(Math.abs(this.#maxValue), Math.abs(this.#minValue));
+        let path = 'M0 0L';
+        for (let i = 0; i < peaks.length; i++){
+            let value = peaks[i] / v * 256;
+            let x = i * pixelStep;
+            if (i%2==0){
+                path += x.toFixed(2) + ' ' + (value).toFixed(0) + ' ';
+            } else {
+                path += x.toFixed(2) + ' ' + (-value).toFixed(0) + ' ';
+            }
+            
         }
 
-        let v = Math.max(Math.abs(maxValue), Math.abs(minValue));
-        maxValue = v;
-        minValue = -v;
-
-        let path = 'M0 100L';
-        for (let i = 0; i < this.#data.length; i+=sampleStep) {
-            let value = this.#data[i] * maxValue * h;
-            path += i.toFixed(0) + ' ' + value.toFixed(0) + ' ';
-        }
-
-        this.#setViewBox(0, minValue * h, this.#data.length, maxValue * h *2);
+        this.#setViewBox(0, -256, peaks.length * pixelStep, 512);
         this.#svg.querySelector('path').setAttribute('d', path);
-        this.#svg.setAttribute('preserveAspectRatio', 'none');
-    }
+    }    
 
     get data(){
         return this.#data;
@@ -166,21 +224,40 @@ export class WaveDisplay{
         return this.#viewBox;
     }
 
+    get startIndex(){
+        return this.#startIndex;
+    }
+
+    set startIndex(value){
+        this.#startIndex = value;
+    }
+
+    get endIndex(){
+        return this.#endIndex;
+    }
+
+    set endIndex(value){
+        this.#endIndex = value;
+    }
+
     getIndex(x){
-        let index = this.#samplesPerPixel * (x + this.#parent.scrollLeft);
-       // console.log('getIndex - samplesPerPixel:',this.#samplesPerPixel,'x:',x,'scrollLeft:',this.#parent.scrollLeft, 'index:',index);
-        return index;
+        return ~~(this.#startIndex + this.#samplesPerPixel * x);
     }
 
     getSeconds(x){
         return this.getIndex(x) / this.#options.sampleRate;
     }
+
+    get maxZoom(){
+        return this.#data.length / this.#svg.clientWidth;
+    }
+
     get zoom(){
-        this.#zoom;
+        return this.#zoom;
     }
 
     set zoom(value){
-        if (value != this.#zoom){
+        if (this.#setZoom(value)){
             this.#scrollZoom(value);    
         }
     }
