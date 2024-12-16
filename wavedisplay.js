@@ -71,7 +71,9 @@ export class WaveDisplay{
         this.#svg.addEventListener('pointermove',e=>{
             console.log(e.clientX);
             this.#mouseIsDown = e.buttons!=0;
-            if(!this.#mouseIsDown) return;
+            if(!this.#mouseIsDown){
+                return;
+            }
             e.preventDefault();    
             //  inertia code
             if (this.#lastMoveTime != null){
@@ -85,6 +87,7 @@ export class WaveDisplay{
             this.#startIndex = Math.min(this.#data.length - range, Math.max(0, this.#startIndex - (walkX * this.#samplesPerPixel)));
             this.#endIndex = this.#startIndex + range;
             this.#drawValues(this.#startIndex , this.#endIndex );
+            console.log('startIndex: ' + this.#startIndex);
         });
         this.#findMinMax();
         this.#startIndex = 0;
