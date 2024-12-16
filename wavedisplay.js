@@ -46,7 +46,9 @@ export class WaveDisplay{
         });
 
         this.#svg.addEventListener('pointerdown',e =>{
+            //this.#evCache.push({clientX: this.#svg.clientWidth * 0.2});
             this.#evCache.push(e);
+            
             this.#scrollSpeed = 0;
             this.#lastMoveTime = null;
             this.#lastMoveX = null;
@@ -102,14 +104,11 @@ export class WaveDisplay{
                     this.#startLeftLock =  this.#startIndex + (this.#samplesPerPixel * leftPos);
                     this.#startRightLock = this.#startIndex + (this.#samplesPerPixel * rightPos);
                     this.#lockRange = this.#startRightLock - this.#startLeftLock;
-                    console.log('pinch to zoom started.');
                 } else {
                     const pixelRange = rightPos - leftPos;
                     this.#samplesPerPixel = this.#lockRange / pixelRange;
-                    console.log('pixRange: ' + pixelRange + ' samplesPerPoint: ' + this.#samplesPerPixel);
                     this.#startIndex = Math.min(this.#data.length, Math.max(0, ~~(this.#startLeftLock - (leftPos * this.#samplesPerPixel))));
-                    this.#endIndex = this.#startIndex + (this.#svg.clientWidth * this.#samplesPerPixel);
-                    console.log('startIndex: ' + this.#startIndex + ' endIndex: ' + this.#endIndex);
+                    this.#endIndex = Math.min(this.#data.length, Math.max(0, ~~(this.#startRightLock + (this.#svg.clientWidth - rightPos) * this.#samplesPerPixel)));
                     this.#drawValues(this.#startIndex, this.#endIndex);
                 }
             }
@@ -141,7 +140,6 @@ export class WaveDisplay{
     #pinchToZoomFinished = function(e){
         if (this.#removeEvent(e) && this.#zoomPinchMode && this.#evCache.length == 0){
             this.#zoomPinchMode = false;
-            console.log('pinch to zoom ended.');;
         }
         if (this.#evCache.length < 2) {
             this.#startLeftLock = -1;
