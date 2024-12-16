@@ -7,7 +7,7 @@
 		<link rel="stylesheet" href="./svgtest.css" />
 	</head>
 	<body>
-        <input id="zoom" type="range" min="1" max="1000" value="1" step="0.001"></input>
+        <input id="zoom" type="range" min="1" max="3000" value="1" step="0.001"></input>
         <div id="container"></div>
         <p>Use mouse wheel to zoom to where you point into the wave form.</p>
         <p>Use the scroll bar or drag to scroll the wave form itself. You can also drag and throw the waveform. Inertia keeps it going for a bit.</p>
@@ -19,7 +19,8 @@
             const audioContext = new AudioContext();
 
             // Get the audio data
-            fetch('./I_have_been_waiting_for_you.mp3')
+            //fetch('./Christmas Canon 2003 (117 BPM).mp3')
+            fetch('I_have_been_waiting_for_you.mp3')
                 .then(response => response.arrayBuffer())
                 .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
                 .then(audioBuffer => {
@@ -27,16 +28,22 @@
                     let waveDisplay = new WaveDisplay({
                         data: audioBuffer.getChannelData(0),
                         parent: document.querySelector('#container'),
-                        samplesPerPoint: 30,
+                        samplesPerPoint: 600,
                         sampleRate: audioBuffer.sampleRate,
                         zoomRate: 0.1,
                         zeroIsMiddle: false,
+                    });
+
+
+                    window.addEventListener("resize", (event) => {
+                        document.querySelector('#zoom').setAttribute('max', waveDisplay.maxZoom);
                     });
 
                     window['waveDisplay'] = waveDisplay;
 
                     // A way to implement an external zoom command
                     let zoom = document.querySelector('#zoom');
+                    zoom.setAttribute('max', waveDisplay.maxZoom);
                     zoom.addEventListener('input', (e)=>{
                         waveDisplay.zoom = Number(e.target.value);
                     });
@@ -45,6 +52,7 @@
                     document.querySelector('#container').addEventListener('click', (e)=>{
                         //console.log('Time in seconds: ' + waveDisplay.getSeconds(e.clientX));
                         //console.log('index: ' + waveDisplay.getIndex(e.clientX));
+                        //console.log('startIndex: ' + waveDisplay.startIndex, 'endIndex: ' + waveDisplay.endIndex)
                     }, { passive: false });
                 });
         </script>
