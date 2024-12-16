@@ -105,10 +105,11 @@ export class WaveDisplay{
                     console.log('pinch to zoom started.');
                 } else {
                     const pixelRange = rightPos - leftPos;
-                    const samplesPerPoint = this.#lockRange / pixelRange;
-                    console.log('pixRange: ' + pixelRange + ' samplesPerPoint: ' + samplesPerPoint);
-                    this.#startIndex = Math.min(this.#data.length - rangeMath.max(0, ~~(this.#startLeftLock - (leftPos * samplesPerPoint))));
-                    this.#endIndex = this.#startIndex + (this.#svg.clientWidth * samplesPerPoint);
+                    this.#samplesPerPixel = this.#lockRange / pixelRange;
+                    console.log('pixRange: ' + pixelRange + ' samplesPerPoint: ' + this.#samplesPerPixel);
+                    this.#startIndex = Math.min(this.#data.length - rangeMath.max(0, ~~(this.#startLeftLock - (leftPos * this.#samplesPerPixel))));
+                    this.#endIndex = this.#startIndex + (this.#svg.clientWidth * this.#samplesPerPixel);
+                    console.log('startIndex: ' + this.#startIndex + ' endIndex: ' + this.#endIndex);
                     this.#drawValues(this.#startIndex, this.#endIndex);
                 }
             }
@@ -138,7 +139,7 @@ export class WaveDisplay{
     }
 
     #pinchToZoomFinished = function(e){
-        if (this.#removeEvent(e) && this.#evCache.length == 0){
+        if (this.#removeEvent(e) && this.#zoomPinchMode && this.#evCache.length == 0){
             this.#zoomPinchMode = false;
             console.log('pinch to zoom ended.');;
         }
