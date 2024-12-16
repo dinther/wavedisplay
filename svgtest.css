@@ -56,6 +56,7 @@ input {
     fill: none;
     stroke: white;
     stroke-width: 1.2px;
+    touch-action: none; 
 }
 
 .scrollbar {
