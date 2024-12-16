@@ -104,26 +104,22 @@ export class WaveDisplay{
 
             //  Pinch to zoom
             if (this.#evCache.length === 2) {
-                // Calculate the distance between the two pointers
+                // Look at the distance between the two pointers
                 const curDiff = Math.abs(this.#evCache[0].clientX - this.#evCache[1].clientX);
                 let along = ((this.#evCache[0].clientX + this.#evCache[1].clientX) / 2) / this.#svg.clientWidth;
                 if (this.#prevDiff > 0) {
                   if (curDiff > this.#prevDiff) {
-                    // The distance between the two pointers has increased
-                    log("Pinch moving OUT -> Zoom in", ev);
+                    log("Pinch moving OUT -> Zoom in", e);
                     this.#setZoom(this.#zoom * 1.02);
-                    //ev.target.style.background = "pink";
                   }
                   if (curDiff < prevDiff) {
-                    // The distance between the two pointers has decreased
-                    log("Pinch moving IN -> Zoom out", ev);
+                    log("Pinch moving IN -> Zoom out", e);
                     this.#setZoom(this.#zoom / 1.02);
-                    //ev.target.style.background = "lightblue";
                   }
                   this.#scrollZoom(along);
+                } else {
+                    console.log('pinch to zoom started. initial prevDiff: ' + prevDiff);
                 }
-            
-                // Cache the distance for the next move event
                 this.#prevDiff = curDiff;
               }
         });
