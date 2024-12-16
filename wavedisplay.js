@@ -107,7 +107,7 @@ export class WaveDisplay{
                     const pixelRange = rightPos - leftPos;
                     this.#samplesPerPixel = this.#lockRange / pixelRange;
                     console.log('pixRange: ' + pixelRange + ' samplesPerPoint: ' + this.#samplesPerPixel);
-                    this.#startIndex = Math.min(this.#data.length - rangeMath.max(0, ~~(this.#startLeftLock - (leftPos * this.#samplesPerPixel))));
+                    this.#startIndex = Math.min(this.#data.length, Math.max(0, ~~(this.#startLeftLock - (leftPos * this.#samplesPerPixel))));
                     this.#endIndex = this.#startIndex + (this.#svg.clientWidth * this.#samplesPerPixel);
                     console.log('startIndex: ' + this.#startIndex + ' endIndex: ' + this.#endIndex);
                     this.#drawValues(this.#startIndex, this.#endIndex);
