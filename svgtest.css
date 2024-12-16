@@ -59,7 +59,6 @@ input {
 }
 
 .scrollbar {
-    pointer-events: none;
     bottom: 4px;
     position: relative;
     overflow-x: auto;
