@@ -120,6 +120,7 @@ export class WaveDisplay{
                     this.#setZoom(this.#zoom / 1.02);
                     //ev.target.style.background = "lightblue";
                   }
+                  this.#scrollZoom(along);
                 }
             
                 // Cache the distance for the next move event
@@ -319,7 +320,7 @@ export class WaveDisplay{
 
     set zoom(value){
         if (this.#setZoom(value)){
-            this.#scrollZoom(value);    
+            this.#scrollZoom(0);    
         }
     }
 }
