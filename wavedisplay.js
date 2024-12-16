@@ -26,6 +26,7 @@ export class WaveDisplay{
     #evCache = [];
     #startLeftLock = -1;
     #startRightLock = -1;
+    #lockRange = -1;
     #viewBox = {xmin:0, ymin:0, xmax:100, ymax:100};
     constructor(options){
         this.#options = {...this.#options, ...options};
@@ -100,12 +101,12 @@ export class WaveDisplay{
                 if (this.#startLeftLock < 0 || this.#startRightLock < 0){
                     this.#startLeftLock =  this.#startIndex + (this.#samplesPerPixel * leftPos);
                     this.#startRightLock = this.#startIndex + (this.#samplesPerPixel * rightPos);
+                    this.#lockRange = this.#startRightLock - this.#startLeftLock;
                     console.log('pinch to zoom started.');
                 } else {
-                    // Look at the distance between the two pointers
-                    const lockRange = this.#startRightLock - this.#startLeftLock;
                     const pixelRange = rightPos - leftPos;
-                    const samplesPerPoint = lockRange / pixelRange;
+                    const samplesPerPoint = this.#lockRange / pixelRange;
+                    console.log('pixRange: ' + pixelRange + ' samplesPerPoint: ' + samplesPerPoint);
                     this.#startIndex = Math.min(this.#data.length - rangeMath.max(0, ~~(this.#startLeftLock - (leftPos * samplesPerPoint))));
                     this.#endIndex = this.#startIndex + (this.#svg.clientWidth * samplesPerPoint);
                     this.#drawValues(this.#startIndex, this.#endIndex);
