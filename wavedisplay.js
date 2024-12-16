@@ -110,9 +110,10 @@ export class WaveDisplay{
                     console.log('pinch to zoom started. initial prevDiff: ' + this.#prevDiff);
                 }
                 this.#prevDiff = curDiff;
+                return;
             }
                
-            //  inertia code
+            //  inertia scroll code
             if (this.#lastMoveTime != null){
                 this.#scrollSpeed = (e.clientX - this.#lastMoveX) * (e.timeStamp - this.#lastMoveTime) * 0.5;
             }
