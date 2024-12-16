@@ -58,7 +58,7 @@ input {
 }
 
 p {
-    margin: 8px;
+    margin: 8px 0 8px 0;
 }
 
 #container {
@@ -96,10 +96,16 @@ p {
     pointer-events: none;
 }
 
+#logHeader {
+    display: flex;
+    justify-content: space-between;
+}
+
 #log {
     font-family: 'Courier New', Courier, monospace;
     border: 1px solid black;
     flex: 3;
+    overflow: auto;
 }
 
 
