@@ -62,8 +62,7 @@ let waveDisplay = new WaveDisplay({
 });
 ```
 
-![image](https://github.com/user-attachments/assets/fd45cf6a-dfaf-49e4-9034-2e02263f148d)
-
+![{AE331C41-21DA-40C1-9ED5-D566B9C2F7FD}](https://github.com/user-attachments/assets/ab2eecef-cd05-449c-a762-9a7e5fe1963c)
 
 
 That it. WaveDisplay creates the required HTML elements inside the parent container you provide and renders your data in SVG.
