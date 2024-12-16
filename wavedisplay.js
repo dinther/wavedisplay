@@ -69,7 +69,7 @@ export class WaveDisplay{
         });
         
         this.#svg.addEventListener('pointermove',e=>{
-            console.log(e.clientX);
+            console.log(e.clientX, e.buttons);
             this.#mouseIsDown = e.buttons!=0;
             if(!this.#mouseIsDown){
                 return;
