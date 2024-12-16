@@ -101,15 +101,15 @@ export class WaveDisplay{
                     this.#startLeftLock =  this.#startIndex + (this.#samplesPerPixel * leftPos);
                     this.#startRightLock = this.#startIndex + (this.#samplesPerPixel * rightPos);
                     console.log('pinch to zoom started.');
+                } else {
+                    // Look at the distance between the two pointers
+                    const lockRange = this.#startRightLock - this.#startLeftLock;
+                    const pixelRange = rightPos - leftPos;
+                    const samplesPerPoint = lockRange / pixelRange;
+                    this.#startIndex = Math.min(this.#data.length - rangeMath.max(0, ~~(this.#startLeftLock - (leftPos * samplesPerPoint))));
+                    this.#endIndex = this.#startIndex + (this.#svg.clientWidth * samplesPerPoint);
+                    this.#drawValues(this.#startIndex, this.#endIndex);
                 }
-
-                // Look at the distance between the two pointers
-                const lockRange = this.#startRightLock - this.#startLeftLock;
-                const pixelRange = rightPos - leftPos;
-                const samplesPerPoint = lockRange / pixelRange;
-                this.#startIndex = Math.min(this.#data.length - rangeMath.max(0, ~~(this.#startLeftLock - (leftPos * samplesPerPoint))));
-                this.#endIndex = this.#startIndex + (this.#svg.clientWidth * samplesPerPoint);
-                this.#drawValues(this.#startIndex, this.#endIndex);
             }
                
             //  inertia code
