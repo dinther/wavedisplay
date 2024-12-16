@@ -48,6 +48,8 @@ export class WaveDisplay{
             this.#lastMoveTime = null;
             this.#lastMoveX = null;
             this.#startX = e.clientX;
+            this.#evCache.push(e);
+            console.log('eventCache.length: ' + this.#evCache.length);
         });  
 
         this.#svg.addEventListener('pointerup',e =>{
@@ -62,19 +64,19 @@ export class WaveDisplay{
                 requestAnimationFrame(this.#keepScrolling.bind(this));
             }
 
-            this.#pinchToZoomFinished();
+            this.#pinchToZoomFinished(e);
         });
 
         this.#svg.addEventListener('pointercancel',e=>{
-            this.#pinchToZoomFinished();
+            this.#pinchToZoomFinished(e);
         });
 
         this.#svg.addEventListener('pointerout',e=>{
-            this.#pinchToZoomFinished();
+            this.#pinchToZoomFinished(e);
         });
 
         this.#svg.addEventListener('pointerleave',e=>{
-            this.#pinchToZoomFinished();
+            this.#pinchToZoomFinished(e);
         });
         
         this.#svg.addEventListener('pointermove',e=>{
@@ -107,16 +109,16 @@ export class WaveDisplay{
                 let along = ((this.#evCache[0].clientX + this.#evCache[1].clientX) / 2) / this.#svg.clientWidth;
                 if (this.#prevDiff > 0) {
                   if (curDiff > this.#prevDiff) {
-                    log("Pinch moving OUT -> Zoom in", e);
+                    console.log("Pinch moving OUT -> Zoom in");
                     this.#setZoom(this.#zoom * 1.02);
                   }
-                  if (curDiff < prevDiff) {
-                    log("Pinch moving IN -> Zoom out", e);
+                  if (curDiff < this.#prevDiff) {
+                    console.log("Pinch moving IN -> Zoom out");
                     this.#setZoom(this.#zoom / 1.02);
                   }
                   this.#scrollZoom(along);
                 } else {
-                    console.log('pinch to zoom started. initial prevDiff: ' + prevDiff);
+                    console.log('pinch to zoom started. initial prevDiff: ' + this.#prevDiff);
                 }
                 this.#prevDiff = curDiff;
               }
@@ -131,7 +133,8 @@ export class WaveDisplay{
         });
     }
 
-    #pinchToZoomFinished = function(){
+    #pinchToZoomFinished = function(e){
+        this.#removeEvent(e);
         if (this.#evCache.length < 2) {
             this.#prevDiff = -1;
         }
