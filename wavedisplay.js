@@ -309,7 +309,7 @@ export class WaveDisplay{
         console.log('samplesPerPixel: ' + this.#samplesPerPixel.toFixed(2), 'samplesPerPixel');
         this.#scrollbar.children[0].style.width = (this.#data.length / this.#samplesPerPixel) + 'px';
         this.#scrollbar.scrollLeft = startIndex / this.#samplesPerPixel;
-        console.log('update scrollbar scrollLeft: ' + this.#scrollbar.scrollLeft.toFixed(0) + ' width: ' + this.#scrollbar.children[0].style.width.toFixed(0), 'scrollBar');
+        console.log('update scrollbar scrollLeft: ' + this.#scrollbar.scrollLeft.toFixed(0) + ' width: ' + this.#scrollbar.children[0].offsetWidth.toFixed(0), 'scrollBar');
 
         if (typeof(this.onViewChange) === 'function'){
             this.onViewChange(this);
