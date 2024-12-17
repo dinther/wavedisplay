@@ -8,7 +8,7 @@
 	</head>
 	<body>
         <h3>wavedisplay.js</h3>
-        <label id="zoomlbl">Zoom<input id="zoom" type="range" min="1" max="3000" value="1" step="0.001"></input></label>
+        <div id="zoomDiv"><label>Zoom</label><input id="zoom" type="range" min="1" max="3000" value="1" step="0.001"></input></div>
         <div id="container"></div>
         <li>Use mouse wheel to zoom to target or slider.</li>
         <li>Scroll bar or drag the wave form itself.</li>
@@ -24,11 +24,12 @@
             const audioContext = new AudioContext();
 
             // Get the audio data
-            //fetch('./Christmas Canon 2003 (117 BPM).mp3')
             fetch('I_have_been_waiting_for_you.mp3')
                 .then(response => response.arrayBuffer())
                 .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
                 .then(audioBuffer => {
+                    let zoom = document.querySelector('#zoomDiv input');
+
                     // Create the UI to display the waveform
                     let waveDisplay = new WaveDisplay({
                         data: audioBuffer.getChannelData(0),
@@ -37,8 +38,12 @@
                         sampleRate: audioBuffer.sampleRate,
                         zoomRate: 0.1,
                         zeroIsMiddle: false,
+                        zoom: 2,
                     });
 
+                    waveDisplay.onViewChange = ()=>{
+                        zoom.value = waveDisplay.zoom;
+                    }
 
                     window.addEventListener("resize", (event) => {
                         document.querySelector('#zoom').setAttribute('max', waveDisplay.maxZoom);
@@ -47,7 +52,7 @@
                     window['waveDisplay'] = waveDisplay;
 
                     // A way to implement an external zoom command
-                    let zoom = document.querySelector('#zoom');
+                    
                     zoom.setAttribute('max', waveDisplay.maxZoom);
                     zoom.addEventListener('input', (e)=>{
                         waveDisplay.zoom = Number(e.target.value);
