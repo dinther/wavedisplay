@@ -108,8 +108,12 @@ export class WaveDisplay{
             //  Pinch to zoom
             if (this.#evCache.length === 2) {
                 
-                const leftPos = Math.min(this.#evCache[0].clientX , this.#evCache[1].clientX);
-                const rightPos = Math.max(this.#evCache[0].clientX , this.#evCache[1].clientX)
+                let leftPos = Math.min(this.#evCache[0].clientX , this.#evCache[1].clientX);
+                let rightPos = Math.max(this.#evCache[0].clientX , this.#evCache[1].clientX);
+                if (e.pointerType !='mouse'){
+                    leftPos = Math.floor(leftPos / 2) * 2;
+                    rightPos = Math.floor(leftPos / 2) * 2;
+                }
                 if (this.#startLeftLock < 0 || this.#startRightLock < 0){
                     this.#startLeftLock =  this.#startIndex + (this.#samplesPerPixel * leftPos);
                     this.#startRightLock = this.#startIndex + (this.#samplesPerPixel * rightPos);
