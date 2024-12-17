@@ -66,12 +66,20 @@
             
             var logDiv = document.querySelector('#log');
 
-            console.log = function(message) {
+            console.log = function(message, lineId='') {
                 console.olog(message);
-                logDiv.insertAdjacentHTML(
-                    'afterbegin', 
-                    '<div>' + message + '</div>'
-                );
+                let messageHandled = false;
+                if (lineId != ''){
+                    let lineElm = logDiv.querySelector('#'+lineId);
+                    if (lineElm){
+                        lineElm.innerText = message;
+                        messageHandled = true;
+                    } else {
+                        logDiv.insertAdjacentHTML('afterbegin', '<div id="'+lineId+'">' + message + '</div>');
+                    }
+                } else {
+                    logDiv.insertAdjacentHTML('beforeEnd', '<div>' + message + '</div>');
+                }
             };
             console.error = console.debug = console.info =  console.log
         </script>
