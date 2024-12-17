@@ -112,7 +112,7 @@ export class WaveDisplay{
                 let rightPos = Math.max(this.#evCache[0].clientX , this.#evCache[1].clientX);
                 if (e.pointerType !='mouse'){
                     leftPos = Math.floor(leftPos / 2) * 2;
-                    rightPos = Math.floor(leftPos / 2) * 2;
+                    rightPos = Math.floor(rightPos / 2) * 2;
                 }
                 if (this.#startLeftLock < 0 || this.#startRightLock < 0){
                     this.#startLeftLock =  this.#startIndex + (this.#samplesPerPixel * leftPos);
