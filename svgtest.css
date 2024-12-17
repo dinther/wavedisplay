@@ -106,6 +106,7 @@ p {
 
 #log {
     font-family: 'Courier New', Courier, monospace;
+    font-size: 0.8em;
     border: 1px solid black;
     flex: 3;
     overflow: auto;
