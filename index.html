@@ -7,12 +7,13 @@
 		<link rel="stylesheet" href="./svgtest.css" />
 	</head>
 	<body>
+        <h3>wavedisplay.js</h3>
         <label id="zoomlbl">Zoom<input id="zoom" type="range" min="1" max="3000" value="1" step="0.001"></input></label>
         <div id="container"></div>
-        <p>Use mouse wheel to zoom to where you point into the wave form.<br>
-        Use the scroll bar or "drag to scroll" the wave form itself.<br>
-        You can also drag and throw the waveform. Inertia keeps it going for a bit.<br>
-        Touch screen and pinch to shrink or stretch is also implemented.</p>
+        <li>Use mouse wheel to zoom to target or slider.</li>
+        <li>Scroll bar or drag the wave form itself.</li>
+        <li>Swipe the waveform. It has inertia.</li>
+        <li>Touch screen and multitouch to adjust zoom.</li>
         <div id="logHeader"><span>Log</span><a href="#" onClick="document.querySelector('#log').innerHTML = '';">clear</a></div>
         <div id = "log"></div>
         <script type="module">
