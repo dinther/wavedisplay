@@ -163,7 +163,7 @@ export class WaveDisplay{
 
     #addEvent(e) {
         this.#evCache.push(e);
-        this.#zoomPinchMode = this.#evCache.length === 2;
+        this.#zoomPinchMode = this.#evCache.length > 1;
         console.log('add   id: '+e.pointerId+' clientX: ' + e.clientX.toFixed(0));
         console.log('Total cache size: ' + this.#evCache.length, 'cacheSize');
         if (this.#zoomPinchMode) console.log('pinchZoom started.');
