@@ -45,7 +45,6 @@ body {
     flex-direction: column;
     margin: 0;
     padding: 10px;
-    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 #zoomlbl {
@@ -88,7 +87,6 @@ p {
     scrollbar-gutter: stable both-edges;
     width: 100%;
     height: 20px;
-    bbackground-color: gray;
 
 }
 
@@ -105,8 +103,9 @@ p {
     font-family: 'Courier New', Courier, monospace;
     border: 1px solid black;
     flex: 3;
-    padding: 4px;
     overflow: auto;
+    padding: 4px;
+    margin-top: 4px;
 }
 
 
