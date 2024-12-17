@@ -122,7 +122,7 @@ export class WaveDisplay{
                     const pixelRange = rightPos - leftPos;
                     this.#samplesPerPixel = this.#lockRange / pixelRange;
                     console.log('left: ' + leftPos.toFixed(0) + ' right: ' + rightPos.toFixed(0), 'pinchZoom');
-                    console.log('samplesPerPixel: ' + this.#samplesPerPixel, 'samplesPerPixel');
+                    console.log('samplesPerPixel: ' + this.#samplesPerPixel.toFixed(2), 'samplesPerPixel');
                     this.#startIndex = Math.min(this.#data.length, Math.max(0, ~~(this.#startLeftLock - (leftPos * this.#samplesPerPixel))));
                     this.#endIndex = Math.min(this.#data.length, Math.max(0, ~~(this.#startRightLock + (this.#svg.clientWidth - rightPos) * this.#samplesPerPixel)));
                     this.#drawValues(this.#startIndex, this.#endIndex);
@@ -306,10 +306,10 @@ export class WaveDisplay{
         this.#samplesPerPixel = range / this.#svg.parentElement.offsetWidth;
 
         //  update scrollbar
-        console.log('samplesPerPixel: ' + this.#samplesPerPixel, 'samplesPerPixel');
+        console.log('samplesPerPixel: ' + this.#samplesPerPixel.toFixed(2), 'samplesPerPixel');
         this.#scrollbar.children[0].style.width = (this.#data.length / this.#samplesPerPixel) + 'px';
         this.#scrollbar.scrollLeft = startIndex / this.#samplesPerPixel;
-        console.log('update scrollbar scrollLeft: ' + this.#scrollbar.scrollLeft + ' width: ' + this.#scrollbar.children[0].style.width, 'scrollBar');
+        console.log('update scrollbar scrollLeft: ' + this.#scrollbar.scrollLeft.toFixed(0) + ' width: ' + this.#scrollbar.children[0].style.width.toFixed(0), 'scrollBar');
 
         if (typeof(this.onViewChange) === 'function'){
             this.onViewChange(this);
