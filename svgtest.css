@@ -45,6 +45,7 @@ body {
     flex-direction: column;
     margin: 0;
     padding: 10px;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
 }
 
 #zoomlbl {
