@@ -47,12 +47,17 @@ body {
     padding: 10px;
 }
 
-#zoomlbl {
-
+h3 {
+  margin: 6px 0 8px 0;
 }
 
-input {
-    margin: 0;
+#zoomDiv {
+    display: flex;
+    margin-bottom: 12px;
+}
+
+#zoomDiv input {
+    margin-left: 4px;
     width: 100%;
 }
 
