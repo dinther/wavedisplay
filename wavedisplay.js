@@ -45,8 +45,7 @@ export class WaveDisplay{
             this.#drawValues(this.#startIndex , this.#endIndex );
         });
 
-        this.#parent.addEventListener('pointerdown',e =>{
-            
+        this.#parent.addEventListener('pointerdown',e =>{        
             if (e.ctrlKey){
                 //  create a copy of the event but with a new pointerID
                 let ctrlPointer = new PointerEvent('pointerdown',{pointerId:-1, type: e.pointerType, clientX: e.clientX, clientY:e.clientY});
@@ -139,15 +138,17 @@ export class WaveDisplay{
             this.#endIndex = this.#startIndex + range;
             this.#drawValues(this.#startIndex , this.#endIndex );
         });
-        
-        this.#findMinMax();
-        this.#startIndex = 0;
-        this.#endIndex = this.#data.length / this.#zoom;
-        this.#drawValues(this.#startIndex, this.#endIndex);
 
         window.addEventListener("resize", (event) => {
             this.#drawValues(this.#startIndex, this.#endIndex);
         });
+
+        this.#findMinMax();
+        this.#setZoom(this.#options.zoom);
+        this.#startIndex = 0;
+        this.#endIndex = this.#data.length / this.#zoom;
+        
+        this.#drawValues(this.#startIndex, this.#endIndex);
     }
 
     #pinchZoomFinished(e) {
@@ -226,10 +227,11 @@ export class WaveDisplay{
         this.#setZoom(this.#zoom * Math.exp(-e.deltaY / 80 * this.#options.zoomRate));
         let along = e.clientX / this.#svg.clientWidth;
         this.#scrollZoom(along);
+        e.preventDefault();
     }
 
     #setZoom(value){
-        let clampedValue  = Math.min(Math.max(1, value), waveDisplay.maxZoom);
+        let clampedValue  = Math.min(Math.max(1, value), this.maxZoom);
         if (clampedValue  !== this.#zoom){
             this.#zoom = clampedValue ;
             return true;
@@ -304,7 +306,13 @@ export class WaveDisplay{
         this.#scrollbar.children[0].style.width = (this.#data.length / this.#samplesPerPixel) + 'px';
         this.#scrollbar.scrollLeft = startIndex / this.#samplesPerPixel;
         console.log('update scrollbar scrollLeft: ' + this.#scrollbar.scrollLeft + ' width: ' + this.#scrollbar.children[0].style.width, 'scrollBar');
+
+        if (typeof(this.onViewChange) === 'function'){
+            this.onViewChange(this);
+        }
     }    
+
+    onViewChange;
 
     get data(){
         return this.#data;
