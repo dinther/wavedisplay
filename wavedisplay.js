@@ -11,7 +11,7 @@ export class WaveDisplay{
     #svg;
     #data;
     #peaks;
-    #samplesPerPixel;
+    #samplesPerPixel = 1;
     #startIndex;
     #endIndex;
     #zoom = 1;
@@ -45,50 +45,62 @@ export class WaveDisplay{
             this.#drawValues(this.#startIndex , this.#endIndex );
         });
 
-        this.#svg.addEventListener('pointerdown',e =>{
-            //this.#evCache.push({clientX: this.#svg.clientWidth * 0.2});
-            this.#evCache.push(e);
+        this.#parent.addEventListener('pointerdown',e =>{
             
+            if (e.ctrlKey){
+                //  create a copy of the event but with a new pointerID
+                let ctrlPointer = new PointerEvent('pointerdown',{pointerId:-1, type: e.pointerType, clientX: e.clientX, clientY:e.clientY});
+                this.#addEvent(ctrlPointer);
+                console.log('ctrlPoint id: '+ctrlPointer.pointerId+' set: ' + ctrlPointer.clientX);
+            } else {
+                this.#addEvent(e);
+                this.#parent.setPointerCapture(e.pointerId);
+            }
             this.#scrollSpeed = 0;
             this.#lastMoveTime = null;
             this.#lastMoveX = null;
             this.#startX = e.clientX;
         });  
 
-        this.#svg.addEventListener('pointerup',e =>{
-            
+        this.#parent.addEventListener('pointerup',e =>{
+            this.#parent.releasePointerCapture(e.pointerId);
             if ( this.#zoomPinchMode || e.timeStamp -  this.#lastMoveTime > 10 ){
                 this.#scrollSpeed = 0;
                 this.#lastMoveTime = null;
                 this.#lastMoveX = null;
             }
             
+            if (e.ctrlKey){
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
             if (Math.abs(this.#scrollSpeed) > 1){
                 requestAnimationFrame(this.#keepScrolling.bind(this));
             }
-            this.#pinchToZoomFinished(e);
+            this.#pinchZoomFinished(e);
         });
 
-        this.#svg.addEventListener('pointercancel',e=>{
-            this.#pinchToZoomFinished(e);
+        this.#parent.addEventListener('pointercancel',e=>{
+            this.#pinchZoomFinished(e);
         });
 
-        this.#svg.addEventListener('pointerout',e=>{
-            this.#pinchToZoomFinished(e);
+        this.#parent.addEventListener('pointerout',e=>{
+            //this.#pinchZoomFinished(e);
         });
 
-        this.#svg.addEventListener('pointerleave',e=>{
-            this.#pinchToZoomFinished(e);
+        this.#parent.addEventListener('pointerleave',e=>{
+            this.#pinchZoomFinished(e);
         });
         
-        this.#svg.addEventListener('pointermove',e=>{
+        this.#parent.addEventListener('pointermove',e=>{
             if(e.buttons==0){
                 return;
             }
             
             // Find this event in the cache and update its record with this event
             const index = this.#evCache.findIndex(
-                (cachedEv) => cachedEv.pointerId === e.pointerId,
+                (cachedEv) => cachedEv.pointerId === e.pointerId
             );           
             this.#evCache[index] = e;
 
@@ -96,7 +108,7 @@ export class WaveDisplay{
             
             //  Pinch to zoom
             if (this.#evCache.length === 2) {
-                this.#zoomPinchMode = true;
+                
                 const leftPos = Math.min(this.#evCache[0].clientX , this.#evCache[1].clientX);
                 const rightPos = Math.max(this.#evCache[0].clientX , this.#evCache[1].clientX)
                 if (this.#startLeftLock < 0 || this.#startRightLock < 0){
@@ -106,6 +118,8 @@ export class WaveDisplay{
                 } else {
                     const pixelRange = rightPos - leftPos;
                     this.#samplesPerPixel = this.#lockRange / pixelRange;
+                    console.log('left: ' + leftPos.toFixed(0) + ' right: ' + rightPos.toFixed(0), 'pinchZoom');
+                    console.log('samplesPerPixel: ' + this.#samplesPerPixel, 'samplesPerPixel');
                     this.#startIndex = Math.min(this.#data.length, Math.max(0, ~~(this.#startLeftLock - (leftPos * this.#samplesPerPixel))));
                     this.#endIndex = Math.min(this.#data.length, Math.max(0, ~~(this.#startRightLock + (this.#svg.clientWidth - rightPos) * this.#samplesPerPixel)));
                     this.#drawValues(this.#startIndex, this.#endIndex);
@@ -136,26 +150,43 @@ export class WaveDisplay{
         });
     }
 
-    #pinchToZoomFinished = function(e){
-        if (this.#removeEvent(e) && this.#zoomPinchMode && this.#evCache.length == 0){
+    #pinchZoomFinished(e) {
+        if (this.#removeEvent(e.pointerId) && this.#zoomPinchMode){
+            this.#evCache = [];
             this.#zoomPinchMode = false;
-        }
-        if (this.#evCache.length < 2) {
             this.#startLeftLock = -1;
             this.#startRightLock = -1;
+            console.log('pinchZoom ended.');
+            console.log('Total cache size: ' + this.#evCache.length, 'cacheSize');
         }
     }
 
-    #removeEvent(e) {
-        // Remove this event from the target's cache
-        const index = this.#evCache.findIndex(
-          (cachedEv) => cachedEv.pointerId === e.pointerId,
-        );
-        this.#evCache.splice(index, 1);
-        return index > -1;
-      }
+    #addEvent(e) {
+        this.#evCache.push(e);
+        this.#zoomPinchMode = this.#evCache.length === 2;
+        console.log('add   id: '+e.pointerId+' clientX: ' + e.clientX.toFixed(0));
+        console.log('Total cache size: ' + this.#evCache.length, 'cacheSize');
+        if (this.#zoomPinchMode) console.log('pinchZoom started.');
+    }
 
-    #findMinMax(){
+    #removeEvent(pointerId) {
+        if (!pointerId || typeof pointerId === 'undefined') return false;
+        if (this.#evCache.length === 0) return false;
+
+        const index = this.#evCache.findIndex(
+            (cachedEv) => cachedEv.pointerId === pointerId,
+          );
+
+          if (index > -1){
+            this.#evCache.splice(index, 1);
+            console.log('Del id: ' + pointerId);
+            console.log('Total cache size: ' + this.#evCache.length, 'cacheSize');
+            return true;
+        }
+        return false;
+    }
+
+    #findMinMax() {
         for (let i = 0; i < this.#data.length; i++) {
             let value = this.#data[i];
             this.#minValue = this.#minValue == null? value : Math.min(this.#minValue, value); 
@@ -163,7 +194,7 @@ export class WaveDisplay{
         }
     }
 
-    #keepScrolling(timeStamp){
+    #keepScrolling(timeStamp) {
         let totalTime = (timeStamp - this.#lastMoveTime) / 1000;
         let decelSpeed = this.#options.deceleration * totalTime;
         if (this.#scrollSpeed > 0) decelSpeed *= -1;
@@ -214,8 +245,6 @@ export class WaveDisplay{
         this.#startIndex = Math.max(0, lockIndex - ~~(newRange * along));
         this.#endIndex = Math.min(this.#data.length, ~~(this.#startIndex + newRange));
         this.#drawValues(this.#startIndex, this.#endIndex);
-        this.#scrollbar.children[0].style.width = (this.#data.length / this.#samplesPerPixel) + 'px';
-        this.#scrollbar.scrollLeft = this.#startIndex / this.#samplesPerPixel;
     }
 
     #setViewBox(xmin, ymin, xmax, ymax){
@@ -224,7 +253,7 @@ export class WaveDisplay{
         this.#viewBox.xmax = xmax!=null? xmax : this.#viewBox.xmax;
         this.#viewBox.ymax = ymax!=null? ymax : this.#viewBox.ymax;
         this.#svg.setAttribute('viewBox', this.#viewBox.xmin + ' ' +this.#viewBox.ymin + ' ' +this.#viewBox.xmax + ' ' + this.#viewBox.ymax);
-        this.#samplesPerPixel = this.#data.length / this.#svg.clientWidth / this.#zoom;
+        //this.#samplesPerPixel = this.#data.length / this.#svg.clientWidth / this.#zoom;
     }
 
     #getPeaks(startIndex, endIndex, pointCount){
@@ -266,6 +295,15 @@ export class WaveDisplay{
         }
         this.#setViewBox(0, -256, peaks.length * pixelStep, 512);
         this.#svg.querySelector('path').setAttribute('d', path);
+
+        let range = endIndex - startIndex;
+        this.#samplesPerPixel = range / this.#svg.parentElement.offsetWidth;
+
+        //  update scrollbar
+        console.log('samplesPerPixel: ' + this.#samplesPerPixel, 'samplesPerPixel');
+        this.#scrollbar.children[0].style.width = (this.#data.length / this.#samplesPerPixel) + 'px';
+        this.#scrollbar.scrollLeft = startIndex / this.#samplesPerPixel;
+        console.log('update scrollbar scrollLeft: ' + this.#scrollbar.scrollLeft + ' width: ' + this.#scrollbar.children[0].style.width, 'scrollBar');
     }    
 
     get data(){
