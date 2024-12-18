@@ -14,7 +14,8 @@ WaveDisplay also has scroll inertia. You can grab the wave form and give it a go
 Every piece of library code must have a demo I think. so here it is.
 https://dinther.github.io/wavedisplay/
 
-![{216BB285-F386-45C5-9E9A-75D749E7E7C8}](https://github.com/user-attachments/assets/93833fd1-d322-4265-b233-e7b77d8c39f0)
+![image](https://github.com/user-attachments/assets/7543c803-ac08-4e5d-ad3b-4a73d6c0fd94)
+
 
 ## installation
 
@@ -60,7 +61,9 @@ let waveDisplay = new WaveDisplay({
   parent: document.querySelector('#container'),
   samplesPerPoint: 60,
   sampleRate: audioBuffer.sampleRate,
-  zoomRate: 0.1
+  zoomRate: 0.1,
+  decelerationTime: 4,
+  scale: 1,
 });
 ```
 
@@ -78,6 +81,8 @@ You can pass the following options in the WaveDisplay constructor:
 - samplesPerPoint   How many samples should be skipped for every svg point. 60 is the default.
 - sampleRate        Helpful when you want to work with seconds. The Wavedisplay.getSeconds depends on it.
 - zoomRate          Use this to specify how fast you can zoom in with the mouse wheel. 0.1 is the default.
+- decelerationTime  Time it takes to come to a stop after a swipe.
+- scale             Scale up or down away from the normalized fitted values.
 
 The following published methods can be used in your application: 
 
