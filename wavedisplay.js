@@ -332,6 +332,7 @@ export class WaveDisplay{
         
         this.#scrollbar.style.width = (range / this.#data.length * this.#parent.offsetWidth)+'px';
         this.#scrollbar.style.left = (startIndex / this.#data.length * this.#parent.offsetWidth)+'px';
+        this.#scrollbar.style.display = ~~(this.#scrollbar.offsetWidth) == ~~(this.#parent.offsetWidth)? 'none' : '';
         
         console.log('update scrollbar scrollLeft: ' + this.#scrollbar.offsetLeft.toFixed(0) + ' width: ' + this.#scrollbar.offsetWidth.toFixed(0), 'scrollBar');
 

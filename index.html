@@ -50,7 +50,7 @@
                     }
 
                     window.addEventListener("resize", (event) => {
-                        document.querySelector('#zoom').setAttribute('max', waveDisplay.maxZoom);
+                        document.querySelector('#zoomDiv input').setAttribute('max', waveDisplay.maxZoom);
                     });
 
                     window['waveDisplay'] = waveDisplay;
