@@ -95,19 +95,30 @@ You can pass the following options in the WaveDisplay constructor:
 
 `scrollbar` Provides direct access to the scrollbar element. Set 'WaveDisplay.scrollbar.style.display="none"' to hide the scrollbar for example.
 
+'maxZoom' WaveDisplay won't render the data to less than the width of the parent container. This means that for a given window there will be a maximum allowable zoom level. Read this value to adjust max range of your own UI controls.
+
+`samplesPerPixel` Read this value to find out how many entries from the data represent one pixel. This value changes when you zoom in or when the window size changes. You can use this value to perform your own calculations
+
+`startIndex` WaveDisplay renders an array of numbers as a waveform. It uses startIndex and endIndex to define the data segment currently rendered. The value must be between 0 and the length of the data array provided via `.options.data`
+
+`endIndex` WaveDisplay renders an array of numbers as a waveform. It uses startIndex and endIndex to define the data segment currently rendered. The value must be between 0 and the length of the data array provided via `.options.data`
 
 ### Methods
 
-The following published methods can be used in your application: 
+`WaveDisplay.getIndex(x)` Use this function to obtain the sample index at a specific point in the wave form. This index is a float. I kept it that way so you can better target a sample with sub pixel precision. The value X you pass in would typically be a pixel coordinate such as the clientX property of a pointer event.
 
+```
+container.addEventListener('pointerDown',(e)=>{
+  console.log('Sample index: ' + waveDisplay.getIndex(e.clientX));
+});
+```
 
+### Events
 
-`WaveDisplay.getIndex(x)`
-
-Use this function when you want to obtain the sample index at a specific point in the wave form. This index is a float. I kept it that way so you can better target a sample with sub pixel precision. The value X would typically be the clientX property of the pointer event. You find an example in index.html.
-
-`WaveDisplay.getSeconds(x)`
-
-WaveDisplay can display any array of numbers. With audio we have time on one axis. The function returns a float representing the time from the start in seconds provided you passed the correct sampleRate in the options. You find an example in index.html.
-
-
+`onViewChange` Use this callback if you want to do additional rendering every time WaveDisplay finishes it's render. Renders only happen after the view changes in some way like scrolling, zooming in or scale changes. WaveDisplay passes itself as the only parameter.
+Example 
+```
+waveDisplay.onViewChange = (obj)=>{
+  myZoomSliderElement.max = obj.maxZoom;
+}
+```
