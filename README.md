@@ -85,9 +85,9 @@ You can pass the following options in the WaveDisplay constructor:
 - decelerationTime  Time it takes to come to a stop after a swipe.
 - scale             Scale up or down away from the normalized fitted values.
 
-### Properies
+### Properties
 
-`zoom` Set the zoom level. A value of 1 will render the entire waveform in the confines of the available container. A zoom factor of 2 show half of the available data and so on. A scrollbar will automatically show when required. Set 'WaveDisplay.scrollbar.style.display="none"' to hide the scrollbar.
+`zoom` Set the zoom level. A value of 1 will render the entire waveform in the confines of the available container. A zoom factor of 2 show half of the available data and so on. A scrollbar will automatically show when required. Tzoom the value is calculated based on the startIndex, endIndex and size of the parent container when it is read.
 
 `scale` Set the scale of the data. A value of 1 will render the waveform so the amplitude will fit in the confines of the available container. A scale factor of 2 renders the amplitude twice as tall.
 
@@ -99,9 +99,9 @@ You can pass the following options in the WaveDisplay constructor:
 
 `samplesPerPixel` Read this value to find out how many entries from the data represent one pixel. This value changes when you zoom in or when the window size changes. You can use this value to perform your own calculations
 
-`startIndex` WaveDisplay renders an array of numbers as a waveform. It uses startIndex and endIndex to define the data segment currently rendered. The value must be between 0 and the length of the data array provided via `.options.data`
+`startIndex` WaveDisplay renders an array of numbers as a waveform. It uses startIndex and endIndex to define the data segment currently rendered. The value must be between 0 and the length of the data array provided via `.options.data`. Note: Changing the startIndex causes the zoom value to change.
 
-`endIndex` WaveDisplay renders an array of numbers as a waveform. It uses startIndex and endIndex to define the data segment currently rendered. The value must be between 0 and the length of the data array provided via `.options.data`
+`endIndex` WaveDisplay renders an array of numbers as a waveform. It uses startIndex and endIndex to define the data segment currently rendered. The value must be between 0 and the length of the data array provided via `.options.data`. Note: Changing the endIndex causes the zoom value to change.
 
 ### Methods
 
