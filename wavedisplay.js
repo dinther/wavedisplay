@@ -36,6 +36,8 @@ export class WaveDisplay{
         this.#svg = this.#createSVG(this.#options.parent);
         this.#scrollbar = document.createElement('div');
         this.#scrollbar.classList.add('scrollbar');
+        this.#scrollbar.appendChild(document.createElement('div'));
+
         this.#parent.appendChild(this.#scrollbar);
 
         this.#parent.addEventListener('pointerdown',e =>{        
