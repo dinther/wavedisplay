@@ -13,12 +13,16 @@ h3 {
   margin: 6px 0 8px 0;
 }
 
-#zoomDiv {
+.sliderbar {
     display: flex;
     margin-bottom: 12px;
 }
 
-#zoomDiv input {
+.sliderbar label {
+  width: 50px;
+}
+
+.sliderbar input {
     margin-left: 4px;
     width: 100%;
 }
@@ -42,23 +46,26 @@ p {
 }
 
 .values-svg {
+    position: absolute;
     flex: 1;
     height: 100%;
     width: 100%;
     fill: none;
     stroke: white;
     stroke-width: 1.2px;
+    pointer-events: none;
 }
 
 .scrollbar {
-    position: relative;
+    position: absolute;
+    bottom: 0px;
     padding: 6px 0 6px 0;
     min-width: 24px;
 }
 
 .scrollbar div {
   border-radius: 6px;
-    background-color: #0075FFAA;
+    background-color: #0075FF;
     height: 12px;
     pointer-events: none;
 }

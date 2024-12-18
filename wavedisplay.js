@@ -6,6 +6,7 @@ export class WaveDisplay{
         sampleRate: 44100,
         zoomRate: 0.01,
         decelerationTime: 4,
+        scale:1,
     }
     #parent;
     #svg;
@@ -27,6 +28,7 @@ export class WaveDisplay{
     #startLeftLock = -1;
     #startRightLock = -1;
     #lockRange = -1;
+    #scale = 1;
     #viewBox = {xmin:0, ymin:0, xmax:100, ymax:100};
     constructor(options){
         this.#options = {...this.#options, ...options};
@@ -146,6 +148,8 @@ export class WaveDisplay{
             }
         });
 
+        this.#parent.addEventListener('wheel', this.#handleWheel.bind(this), { passive: false });
+
         window.addEventListener("resize", (event) => {
             this.#drawValues(this.#startIndex, this.#endIndex);
         });
@@ -241,7 +245,6 @@ export class WaveDisplay{
         path.setAttribute('d', 'M0 0L100 0 100 32 0 32 0 0');
         svg.setAttribute('preserveAspectRatio', 'none');
         svg.appendChild(path);
-        svg.addEventListener('wheel', this.#handleWheel.bind(this), { passive: false });
         this.#parent.appendChild(svg);
         return svg;
     }
@@ -307,7 +310,7 @@ export class WaveDisplay{
         let v = Math.max(Math.abs(this.#maxValue), Math.abs(this.#minValue));
         let path = 'M0 0L';
         for (let i = 0; i < peaks.length; i++){
-            let value = peaks[i] / v * 256;
+            let value = peaks[i] / v * 256 * this.#scale;
             let x = i * pixelStep;
             if (i%2==0){
                 path += x.toFixed(2) + ' ' + (value).toFixed(0) + ' ';
@@ -390,5 +393,14 @@ export class WaveDisplay{
         if (this.#setZoom(value)){
             this.#scrollZoom(this.#zoom, 0);    
         }
+    }
+
+    get scale(){
+        return this.#scale;
+    }
+
+    set scale(value){
+        this.#scale = value;
+        this.#drawValues(this.#startIndex, this.#endIndex);
     }
 }
