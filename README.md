@@ -89,6 +89,10 @@ You can pass the following options in the WaveDisplay constructor:
 - decelerationTime  Time it takes to come to a stop after a swipe.
 - scale             Scale up or down away from the normalized fitted values.
 
+samplesPerPoint needs some more explanation. An audio sample with a duration of 5 minutes and a standard bitrate of 44100 would have `5 * 60 * 44100 = 13230000` samples per channel. Yes that is over 13 million. It would be silly to render every value. Spread across a HD screen of 1920 pixels wide you would have 6890 samples for every pixel.
+
+In order to get a decent performance and a pleasing looking display with plenty of detail we search for the maximum value for every even pixel and a minimum value for every odd pixel. However, working out the maximum value out of 6890 numbers is still inefficient. Instead we take a number of samples out of these 6890 numbers and find the minimum or maximum of those. `options.samplesPerPoint` defines how many samples should be taken to find the minimum or maximum for a pixel.
+
 ### Properties
 
 `zoom` Set the zoom level. A value of 1 will render the entire waveform in the confines of the available container. A zoom factor of 2 show half of the available data and so on. A scrollbar will automatically show when required. Tzoom the value is calculated based on the startIndex, endIndex and size of the parent container when it is read.
