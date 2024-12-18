@@ -83,13 +83,13 @@ You can pass the following options in the WaveDisplay constructor:
 
 - data              Pass your number array to this.
 - parent            The parent container object.
-- samplesPerPoint   How many samples should be skipped for every svg point. 60 is the default.
+- samplesPerPoint   How many samples should be skipped for every svg point. 60 is the default. *
 - sampleRate        Helpful when you want to work with seconds. The Wavedisplay.getSeconds depends on it.
 - zoomRate          Use this to specify how fast you can zoom in with the mouse wheel. 0.1 is the default.
 - decelerationTime  Time it takes to come to a stop after a swipe.
 - scale             Scale up or down away from the normalized fitted values.
 
-samplesPerPoint needs some more explanation. An audio sample with a duration of 5 minutes and a standard bitrate of 44100 would have `5 * 60 * 44100 = 13230000` samples per channel. Yes that is over 13 million. It would be silly to render every value. Spread across a HD screen of 1920 pixels wide you would have 6890 samples for every pixel.
+* samplesPerPoint needs some more explanation. An audio sample with a duration of 5 minutes and a standard bitrate of 44100 would have `5 * 60 * 44100 = 13230000` samples per channel. Yes that is over 13 million. It would be silly to render every value. Spread across a HD screen of 1920 pixels wide you would have 6890 samples for every pixel.
 
 In order to get a decent performance and a pleasing looking display with plenty of detail we search for the maximum value for every even pixel and a minimum value for every odd pixel. However, working out the maximum value out of 6890 numbers is still inefficient. Instead we take a number of samples out of these 6890 numbers and find the minimum or maximum of those. `options.samplesPerPoint` defines how many samples should be taken to find the minimum or maximum for a pixel.
 
