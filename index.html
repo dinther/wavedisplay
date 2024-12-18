@@ -10,10 +10,12 @@
         <h3>wavedisplay.js</h3>
         <div id="zoomDiv"><label>Zoom</label><input id="zoom" type="range" min="1" max="3000" value="1" step="0.001"></input></div>
         <div id="container"></div>
-        <li>Use mouse wheel to zoom to target or slider.</li>
-        <li>Scroll bar or drag the wave form itself.</li>
-        <li>Swipe the waveform. It has inertia.</li>
-        <li>Touch screen and multitouch to adjust zoom.</li>
+        <div id="info">
+            <li>Use mouse wheel to zoom to target or slider.</li>
+            <li>Scroll bar or drag the wave form itself.</li>
+            <li>Swipe the waveform. It has inertia.</li>
+            <li>Touch screen and multitouch to adjust zoom.</li>
+        </div>
         <div id="logHeader"><span>Log</span><a href="#" onClick="document.querySelector('#log').innerHTML = '';">clear</a></div>
         <div id = "log"></div>
         <script type="module">
@@ -36,6 +38,7 @@
                         parent: document.querySelector('#container'),
                         samplesPerPoint: 600,
                         sampleRate: audioBuffer.sampleRate,
+                        decelerationTime: 4,
                         zoomRate: 0.1,
                         zeroIsMiddle: false,
                         zoom: 2,
@@ -86,7 +89,7 @@
                         lineElm.innerText = message;
                         messageHandled = true;
                     } else {
-                        logDiv.insertAdjacentHTML('afterbegin', '<div id="'+lineId+'">' + message + '</div>');
+                        logDiv.insertAdjacentHTML('beforeEnd', '<div id="'+lineId+'">' + message + '</div>');
                     }
                 } else {
                     logDiv.insertAdjacentHTML('beforeEnd', '<div>' + message + '</div>');
