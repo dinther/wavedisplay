@@ -74,6 +74,7 @@ WaveDisplay has a mouse wheel zoom function built in where it zooms in towards w
 
 ## Simple API
 
+### Options
 You can pass the following options in the WaveDisplay constructor:
 
 - data              Pass your number array to this.
@@ -84,11 +85,22 @@ You can pass the following options in the WaveDisplay constructor:
 - decelerationTime  Time it takes to come to a stop after a swipe.
 - scale             Scale up or down away from the normalized fitted values.
 
+### Properies
+
+`zoom` Set the zoom level. A value of 1 will render the entire waveform in the confines of the available container. A zoom factor of 2 show half of the available data and so on. A scrollbar will automatically show when required. Set 'WaveDisplay.scrollbar.style.display="none"' to hide the scrollbar.
+
+`scale` Set the scale of the data. A value of 1 will render the waveform so the amplitude will fit in the confines of the available container. A scale factor of 2 renders the amplitude twice as tall.
+
+`svg` Provides acces to the internal svg element created by WaveDisplay.
+
+`scrollbar` Provides direct access to the scrollbar element. Set 'WaveDisplay.scrollbar.style.display="none"' to hide the scrollbar for example.
+
+
+### Methods
+
 The following published methods can be used in your application: 
 
-`WaveDisplay.zoom = zoomFactor`
 
-Use this if you want to control the zoom factor with a HTML slider or from other code. A zoom factor of 1 will render the entire waveform in the confines of the available container. A zoom factor of 2 will double the length of the graphic. A scrollbar will show up. Etc etc.
 
 `WaveDisplay.getIndex(x)`
 
