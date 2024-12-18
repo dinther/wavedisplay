@@ -160,6 +160,7 @@ export class WaveDisplay{
     #init(){
         this.#findMinMax();
         this.#setZoom(this.#options.zoom);
+        this.#scale = Math.abs(this.#options.scale);
         this.#startIndex = 0;
         this.#endIndex = this.#data.length / this.#zoom;
         let range = this.#endIndex - this.#startIndex;
