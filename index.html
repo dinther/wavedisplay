@@ -76,6 +76,7 @@
                                 let x = startX;
                                 let y = ctx.canvas.height * 0.667;
                                 ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+                                ctx.font = "10px Arial";
                                 ctx.textAlign = 'center'; 
 
                                 while ( x < ctx.canvas.width ){
@@ -110,10 +111,10 @@
                         },
                     });
 
-                    container.addEventListener("resize", (event) => {
+                    window.addEventListener("resize", (event) => {
                         document.querySelector('#zoomDiv input').setAttribute('max', waveDisplay.maxZoom);
-                        ctx.canvas.width = container.offsetWidth;// * window.devicePixelRatio;
-                        ctx.canvas.height = container.offsetHeight * 0.15;// * window.devicePixelRatio;
+                        ctx.canvas.width = container.offsetWidth * window.devicePixelRatio;
+                        ctx.canvas.height = container.offsetHeight * 0.15 * window.devicePixelRatio;
                     });
 
                     window['waveDisplay'] = waveDisplay;
