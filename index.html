@@ -135,7 +135,7 @@
                     document.querySelector('#container').addEventListener('pointerdown', (e)=>{
                         if (e.target != waveDisplay.scrollbar){
                             let time = waveDisplay.getIndex(e.clientX) / audioBuffer.sampleRate;
-                            console.log('Clicked at time: ' + time);
+                            console.log('Clicked at time: ' + time, 'timeclick');
                         }
                     }, { passive: false });
                 });

@@ -128,8 +128,8 @@ export class WaveDisplay{
                 } else {
                     const pixelRange = rightPos - leftPos;
                     let samplesPerPixel = this.#lockRange / pixelRange;
-                    this.#startIndex = Math.min( this.#data.length, Math.max( 0, this.#startLeftLock - ( leftPos * samplesPerPixel )));
-                    this.#endIndex = Math.min( this.#data.length, Math.max( 0, this.#startRightLock + ( this.#svg.clientWidth - rightPos ) * samplesPerPixel ));
+                    this.#startIndex = this.#clampIndex( 0, this.#startLeftLock - ( leftPos * samplesPerPixel ), this.#data.length );
+                    this.#endIndex = this.#clampIndex( 0, this.#startRightLock + ( this.#svg.clientWidth - rightPos ) * samplesPerPixel, this.#data.length);
                     this.#drawValues( this.#startIndex, this.#endIndex );
                 }
             } else if ( !this.#zoomPinchMode ){   //  Drag
@@ -146,7 +146,7 @@ export class WaveDisplay{
                         this.#scrollSpeed = ( e.clientX - this.#lastMoveX );
                     }
                 }
-                this.#startIndex = Math.min( this.#data.length - range, Math.max( 0, this.#startIndex - indexStep ));
+                this.#startIndex = this.#clampIndex( 0, this.#startIndex - indexStep, this.#data.length - range );
                 this.#endIndex = this.#startIndex + range;
                 this.#drawValues( this.#startIndex , this.#endIndex );
 
@@ -180,6 +180,13 @@ export class WaveDisplay{
         }        
         this.#svg.setAttribute( 'viewBox', '0 -256 ' + this.#parent.offsetWidth + ' 512' );
         this.#drawValues( this.#startIndex, this.#endIndex );
+    }
+
+    #clampIndex(minValue, value, maxValue){
+        if (value < minValue || value > maxValue){
+            this.#scrollSpeed = 0;
+        }
+        return Math.max(minValue, Math.min(maxValue, value));
     }
 
     #setScrollSpeed( value ){
@@ -242,7 +249,7 @@ export class WaveDisplay{
         }
         let indexStep = f * f * this.#scrollSpeed * this.#samplesPerPixel;
         let range = this.#endIndex - this.#startIndex;  
-        this.#startIndex = Math.min( this.#data.length - range, Math.max( 0, this.#startIndex - indexStep ));
+        this.#startIndex = this.#clampIndex( 0, this.#startIndex - indexStep, this.#data.length - range );
         this.#endIndex = this.#startIndex + range;
         this.#drawValues( this.#startIndex , this.#endIndex );
         this.#scrollbar.left = ( this.#startIndex / this.#data.length * this.#parent.offsetWidth ) + 'px';
@@ -281,8 +288,8 @@ export class WaveDisplay{
         let oldRange = this.#endIndex - this.#startIndex;
         let lockIndex = this.#startIndex + ( along * oldRange );
         let newRange = this.#data.length / zoom;
-        this.#startIndex = Math.max( 0, lockIndex - ( newRange * along ));
-        this.#endIndex = Math.min( this.#data.length, ( this.#startIndex + newRange ));
+        this.#startIndex = this.#clampIndex( 0, lockIndex - ( newRange * along ), this.#data.length );
+        this.#endIndex = this.#clampIndex( 0, this.#startIndex + newRange, this.#data.length );
         this.#drawValues( this.#startIndex, this.#endIndex );
     }
 
@@ -292,8 +299,7 @@ export class WaveDisplay{
         startIndex = ~~( startIndex / ( sampleStep * 2 )) * ( sampleStep * 2 );
         endIndex = startIndex + range;
         if (this.#lastStartIndex == startIndex){
-            console.log(startIndex);
-            return this.lastPeaks;
+            return this.#lastPeaks;
         }
         let peaks = [];
         this.#lastStartIndex = startIndex;
@@ -308,7 +314,7 @@ export class WaveDisplay{
             }
             peaks[i] = yMax;
         }
-        this.lastPeaks = peaks;
+        this.#lastPeaks = peaks;
         return peaks;
     }
 
@@ -371,7 +377,7 @@ export class WaveDisplay{
     }
 
     set startIndex( value ) {
-        this.#startIndex = Math.min( this.#data.length, Math.max( 0, value ));
+        this.#startIndex = this.#clampIndex( 0, value, this.#data.length );
     }
 
     get endIndex() {
@@ -379,7 +385,7 @@ export class WaveDisplay{
     }
 
     set endIndex( value ) {
-        this.#endIndex = Math.min( this.#data.length, Math.max( 0, value ));
+        this.#endIndex = this.#clampIndex(0, value, this.#data.length );
     }
 
 
