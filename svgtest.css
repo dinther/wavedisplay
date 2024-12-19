@@ -27,6 +27,10 @@ h3 {
     width: 100%;
 }
 
+.sliderbar div {
+    width: 30px;
+}
+
 p {
     margin: 8px 0 8px 0;
 }

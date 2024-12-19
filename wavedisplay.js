@@ -22,6 +22,7 @@ export class WaveDisplay{
     #lastMoveTime = null;
     #lastMoveX = null;
     #lastStartIndex;
+    #lastEndIndex;
     #scrollSpeed = 0;
     test;
     #minValue;
@@ -298,7 +299,7 @@ export class WaveDisplay{
         let sampleStep = Math.max( 1, ( range / pointCount ));
         startIndex = ~~( startIndex / ( sampleStep * 2 )) * ( sampleStep * 2 );
         endIndex = startIndex + range;
-        if (this.#lastStartIndex == startIndex){
+        if (this.#lastStartIndex == startIndex && this.#lastEndIndex == endIndex){
             return this.#lastPeaks;
         }
         let peaks = [];
