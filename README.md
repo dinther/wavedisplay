@@ -44,7 +44,11 @@ fetch('./I_have_been_waiting_for_you.mp3')
   .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
   .then(audioBuffer => {
     let myNumberArray = audioBufer.getChannelData(0); //  We only want one channel
+
     console.log(myNumberArray);
+
+    // .... your code
+
   }
 ```
 
@@ -74,28 +78,55 @@ WaveDisplay has a mouse wheel zoom function built in where it zooms in towards w
 
 ## Simple API
 
+### Options
 You can pass the following options in the WaveDisplay constructor:
 
 - data              Pass your number array to this.
 - parent            The parent container object.
-- samplesPerPoint   How many samples should be skipped for every svg point. 60 is the default.
+- samplesPerPoint   How many samples should be skipped for every svg point. 60 is the default. *
 - sampleRate        Helpful when you want to work with seconds. The Wavedisplay.getSeconds depends on it.
 - zoomRate          Use this to specify how fast you can zoom in with the mouse wheel. 0.1 is the default.
 - decelerationTime  Time it takes to come to a stop after a swipe.
 - scale             Scale up or down away from the normalized fitted values.
 
-The following published methods can be used in your application: 
+* samplesPerPoint needs some more explanation. An audio sample with a duration of 5 minutes and a standard bitrate of 44100 would have `5 * 60 * 44100 = 13230000` samples per channel. Yes that is over 13 million. It would be silly to render every value. Spread across a HD screen of 1920 pixels wide you would have 6890 samples for every pixel.
 
-`WaveDisplay.zoom = zoomFactor`
+In order to get a decent performance and a pleasing looking display with plenty of detail we search for the maximum value for every even pixel and a minimum value for every odd pixel. However, working out the maximum value out of 6890 numbers is still inefficient. Instead we take a number of samples out of these 6890 numbers and find the minimum or maximum of those. `options.samplesPerPoint` defines how many samples should be taken to find the minimum or maximum for a pixel.
 
-Use this if you want to control the zoom factor with a HTML slider or from other code. A zoom factor of 1 will render the entire waveform in the confines of the available container. A zoom factor of 2 will double the length of the graphic. A scrollbar will show up. Etc etc.
+### Properties
 
-`WaveDisplay.getIndex(x)`
+`zoom` Set the zoom level. A value of 1 will render the entire waveform in the confines of the available container. A zoom factor of 2 show half of the available data and so on. A scrollbar will automatically show when required. Tzoom the value is calculated based on the startIndex, endIndex and size of the parent container when it is read.
 
-Use this function when you want to obtain the sample index at a specific point in the wave form. This index is a float. I kept it that way so you can better target a sample with sub pixel precision. The value X would typically be the clientX property of the pointer event. You find an example in index.html.
+`scale` Set the scale of the data. A value of 1 will render the waveform so the amplitude will fit in the confines of the available container. A scale factor of 2 renders the amplitude twice as tall.
 
-`WaveDisplay.getSeconds(x)`
+`svg` Provides acces to the internal svg element created by WaveDisplay.
 
-WaveDisplay can display any array of numbers. With audio we have time on one axis. The function returns a float representing the time from the start in seconds provided you passed the correct sampleRate in the options. You find an example in index.html.
+`scrollbar` Provides direct access to the scrollbar element. Set 'WaveDisplay.scrollbar.style.display="none"' to hide the scrollbar for example.
 
+'maxZoom' WaveDisplay won't render the data to less than the width of the parent container. This means that for a given window there will be a maximum allowable zoom level. Read this value to adjust max range of your own UI controls.
 
+`samplesPerPixel` Read this value to find out how many entries from the data represent one pixel. This value changes when you zoom in or when the window size changes. You can use this value to perform your own calculations
+
+`startIndex` WaveDisplay renders an array of numbers as a waveform. It uses startIndex and endIndex to define the data segment currently rendered. The value must be between 0 and the length of the data array provided via `.options.data`. Note: Changing the startIndex causes the zoom value to change.
+
+`endIndex` WaveDisplay renders an array of numbers as a waveform. It uses startIndex and endIndex to define the data segment currently rendered. The value must be between 0 and the length of the data array provided via `.options.data`. Note: Changing the endIndex causes the zoom value to change.
+
+### Methods
+
+`WaveDisplay.getIndex(x)` Use this function to obtain the sample index at a specific point in the wave form. This index is a float. I kept it that way so you can better target a sample with sub pixel precision. The value X you pass in would typically be a pixel coordinate such as the clientX property of a pointer event.
+
+```
+container.addEventListener('pointerDown',(e)=>{
+  console.log('Sample index: ' + waveDisplay.getIndex(e.clientX));
+});
+```
+
+### Events
+
+`onViewChange` Use this callback if you want to do additional rendering every time WaveDisplay finishes it's render. Renders only happen after the view changes in some way like scrolling, zooming in or scale changes. WaveDisplay passes itself as the only parameter.
+Example 
+```
+waveDisplay.onViewChange = (obj)=>{
+  myZoomSliderElement.max = obj.maxZoom;
+}
+```
