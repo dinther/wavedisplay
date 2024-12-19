@@ -6,7 +6,10 @@ WaveDisplay will create the required HTML elements inside a container that you p
 
 The UI is very responsive because it only renders the data that is visible. This also means there is no limit to how much audio data this control can hold.
 
-All the usual scroll and zoom functions are implemented. Zoom To where you point at using the mouse scrollwheel. For touch screen there is pinch to zoom.
+All the usual scroll and zoom functions are implemented. Zoom To where you point at using the mouse scrollwheel. For touch screens there is pinch to zoom. You can simulate this with your mouse as follows:
+
+CTRL Click to place your first touch lock point. Then click and hold to draw relative to that point to scale.
+
 WaveDisplay also has scroll inertia. You can grab the wave form and give it a good push which causes it to keep going but gradually slow down.
 
 ## Demo
