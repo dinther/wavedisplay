@@ -133,8 +133,10 @@
 
                     // A way to obtain a time in seconds in the wave form.
                     document.querySelector('#container').addEventListener('pointerdown', (e)=>{
-                        let time = waveDisplay.getIndex(e.clientX) / audioBuffer.sampleRate;
-                        console.log('Clicked at time: ' + time);
+                        if (e.target != waveDisplay.scrollbar){
+                            let time = waveDisplay.getIndex(e.clientX) / audioBuffer.sampleRate;
+                            console.log('Clicked at time: ' + time);
+                        }
                     }, { passive: false });
                 });
 

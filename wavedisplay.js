@@ -13,7 +13,7 @@ export class WaveDisplay{
     #parent;
     #svg;
     #data;
-    #peaks;
+    #lastPeaks;
     #samplesPerPixel = 1;
     #startIndex;
     #endIndex;
@@ -21,6 +21,7 @@ export class WaveDisplay{
     #scrolling = false;
     #lastMoveTime = null;
     #lastMoveX = null;
+    #lastStartIndex;
     #scrollSpeed = 0;
     test;
     #minValue;
@@ -286,30 +287,35 @@ export class WaveDisplay{
     }
 
     #getPeaks( startIndex, endIndex, pointCount ){
-        this.#peaks = [];
         let range = endIndex - startIndex;
         let sampleStep = Math.max( 1, ( range / pointCount ));
         startIndex = ~~( startIndex / ( sampleStep * 2 )) * ( sampleStep * 2 );
-        endIndex = startIndex + range; 
+        endIndex = startIndex + range;
+        if (this.#lastStartIndex == startIndex){
+            console.log(startIndex);
+            return this.lastPeaks;
+        }
+        let peaks = [];
+        this.#lastStartIndex = startIndex;
         let sampleCount = Math.min( sampleStep, this.#options.samplesPerPoint );
-        let firstPeakIndex = null;
+
         for ( let i=0; i < pointCount; i++ ){
             let yMax= 0;
             let step = Math.max( 1, ( sampleStep / sampleCount ));
             for ( let j = 0; j < sampleCount; j++ ){
                 let index = ~~( startIndex + ( i * sampleStep ) + ( j * step ));
-                if ( firstPeakIndex==null ) firstPeakIndex = index;
                 yMax = Math.max( yMax, Math.abs( this.#data[index] ));
             }
-            this.#peaks[i] = yMax;
+            peaks[i] = yMax;
         }
-        return {firstIndex: firstPeakIndex, peaks: this.#peaks};
+        this.lastPeaks = peaks;
+        return peaks;
     }
 
     #drawValues( startIndex, endIndex ){
         let pixelStep = 2;        
         let pointCount = ~~( this.#svg.parentElement.offsetWidth / pixelStep );
-        let peaks = this.#getPeaks( startIndex, endIndex, pointCount ).peaks;
+        let peaks = this.#getPeaks( startIndex, endIndex, pointCount );
         let v = Math.max( Math.abs( this.#maxValue ), Math.abs( this.#minValue ));
         let path = 'M0 0L';
         for ( let i = 0; i < peaks.length; i++ ){
