@@ -17,8 +17,7 @@ WaveDisplay also has scroll inertia. You can grab the wave form and give it a go
 Every piece of library code must have a demo I think. so here it is.
 https://dinther.github.io/wavedisplay/
 
-![image](https://github.com/user-attachments/assets/7543c803-ac08-4e5d-ad3b-4a73d6c0fd94)
-
+![{43A90E72-8DA0-4228-AAE6-44CE0864950E}](https://github.com/user-attachments/assets/b92a2b14-83ad-471d-a9dc-625113a5d638)
 
 ## installation
 
