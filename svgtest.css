@@ -41,6 +41,12 @@ p {
     touch-action: none;
 }
 
+#container canvas {
+    position: relative;
+    width: 100%;
+    z-index: 10;
+}
+
 #info {
   display: none;
 }
@@ -77,7 +83,7 @@ p {
 
 #log {
     font-family: 'Courier New', Courier, monospace;
-    font-size: 1.2em;
+    font-size: 0.9em;
     border: 1px solid black;
     flex: 3;
     overflow: auto;
