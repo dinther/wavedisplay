@@ -311,13 +311,13 @@ export class WaveDisplay{
         this.#peaks = [];
         let range = endIndex - startIndex;
         let sampleStep = Math.max(1, (range / pointCount));
-        let avgSampleCount = 50;
-        startIndex = (startIndex / (sampleStep * 2)) * sampleStep * 2;
+        startIndex = ~~(startIndex / (sampleStep * 2)) * (sampleStep * 2);
+        endIndex = startIndex + range; 
+        let sampleCount = Math.min(sampleStep, this.#options.samplesPerPoint);
         let firstPeakIndex = null;
         for (let i=0; i < pointCount; i++){
             let yMax= 0;
-            let sampleCount = Math.min(sampleStep, avgSampleCount);
-            let step = Math.max(1,(sampleStep / avgSampleCount));
+            let step = Math.max(1,(sampleStep / sampleCount));
             for (let j = 0; j < sampleCount; j++){
                 let index = ~~(startIndex + (i * sampleStep) + (j*step));
                 if (firstPeakIndex==null) firstPeakIndex = index;
