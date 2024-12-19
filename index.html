@@ -10,6 +10,7 @@
         <h3>wavedisplay.js</h3>
         <div class="sliderbar" id="zoomDiv"><label>Zoom</label><input type="range" min="1" max="3000" value="1" step="0.001"></input></div>
         <div class="sliderbar" id="scaleDiv"><label>Scale</label><input type="range" min="1" max="10" value="1" step="1"></input></div>
+        <div class="sliderbar" id="bpmDiv"><label>BPM</label><input type="range" min="40" max="160" value="120" step="0.1"></input></div>
         <div id="container"><canvas></canvas></div>
         <div id="info">
             <li>Use mouse wheel to zoom to target or slider.</li>
@@ -34,6 +35,7 @@
             var startBeat;
             var startBar;
             var pixelsPerBeat;
+            var bpmValue = 120;
             // Get the audio data
             fetch('I_have_been_waiting_for_you.mp3')
                 .then(response => response.arrayBuffer())
@@ -54,51 +56,7 @@
                         onViewChange: ( waveDisplay )=>{
                             zoom.value = waveDisplay.zoom; 
                             let beatBarRenderTimer = setTimeout(()=>{
-                                //  tick parameters
-                                let beatOffsetSec = 0.5;
-                                let bpm = 117;
-                                let beatsPerBar = 4;
-                                let beatColor = '#999';
-                                let barColor = '#fff';
-                                
-                                //  Render time scale
-                                let samplesPerBeat = 60 / bpm * audioBuffer.sampleRate;
-                                let beatOffsetSamples = beatOffsetSec * audioBuffer.sampleRate;
-                                let rangeInBeats = ( waveDisplay.endIndex - waveDisplay.startIndex ) / samplesPerBeat
-                                let beatsPerPixel = rangeInBeats / ctx.canvas.width;
-                                pixelsPerBeat = 1 / beatsPerPixel;
-
-                                startBeat = ~~( waveDisplay.startIndex / samplesPerBeat );
-                                let beat = startBeat;
-                                startBar = ~~( beat / beatsPerBar );
-                                let bar = startBar;
-                                startX = -( waveDisplay.startIndex % samplesPerBeat ) / waveDisplay.samplesPerPixel;
-                                let x = startX;
-                                let y = ctx.canvas.height * 0.667;
-                                ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
-                                ctx.font = "10px Arial";
-                                ctx.textAlign = 'center'; 
-
-                                while ( x < ctx.canvas.width ){
-                                    if ( beat % beatsPerBar == 0 ){
-                                        ctx.strokeStyle = barColor;
-                                        ctx.fillStyle = barColor;
-                                        bar++;
-                                        ctx.fillText( bar, x + 8, 8 );
-                                    } else {
-                                        ctx.strokeStyle = beatColor;
-                                        ctx.fillStyle = beatColor;
-                                    }
-                                    ctx.beginPath();
-                                    ctx.moveTo( x, 0 );
-                                    ctx.lineTo( x, y );
-                                    ctx.stroke();
-                                    ctx.fillText( beat, x, ctx.canvas.height );
-                                    ctx.stroke();
-                                    beat++;
-                                    x += pixelsPerBeat;                           
-                                }
-                                
+                                render(waveDisplay);
                                 if ( waveDisplay.scrollSpeed == 0 ){
                                     clearTimeout( beatBarRenderTimer );
                                 }    
@@ -111,10 +69,58 @@
                         },
                     });
 
+                    function render(waveDisplay){
+                        //  tick parameters
+                        let beatOffsetSec = 0.5;
+                        let bpm = bpmValue;
+                        let beatsPerBar = 4;
+                        let beatColor = '#999';
+                        let barColor = '#fff';
+                        
+                        //  Render time scale
+                        let samplesPerBeat = 60 / bpm * audioBuffer.sampleRate;
+                        let beatOffsetSamples = beatOffsetSec * audioBuffer.sampleRate;
+                        let rangeInBeats = ( waveDisplay.endIndex - waveDisplay.startIndex ) / samplesPerBeat
+                        let beatsPerPixel = rangeInBeats / ctx.canvas.width;
+                        pixelsPerBeat = 1 / beatsPerPixel;
+
+                        startBeat = ~~( waveDisplay.startIndex / samplesPerBeat );
+                        let beat = startBeat;
+                        startBar = ~~( beat / beatsPerBar );
+                        let bar = startBar;
+                        startX = -( waveDisplay.startIndex % samplesPerBeat ) / waveDisplay.samplesPerPixel;
+                        let x = startX;
+                        let y = ctx.canvas.height * 0.667;
+                        ctx.clearRect( 0, 0, ctx.canvas.width, ctx.canvas.height );
+                        ctx.font = "12px Arial";
+                        ctx.textAlign = 'center'; 
+
+                        while ( x < ctx.canvas.width ){
+                            if ( beat % beatsPerBar == 0 ){
+                                ctx.strokeStyle = barColor;
+                                ctx.fillStyle = barColor;
+                                bar++;
+                                ctx.fillText( bar, x + 8, 8 );
+                            } else {
+                                ctx.strokeStyle = beatColor;
+                                ctx.fillStyle = beatColor;
+                            }
+                            ctx.beginPath();
+                            ctx.moveTo( x, 0 );
+                            ctx.lineTo( x, y );
+                            ctx.stroke();
+                            ctx.fillText( beat, x, ctx.canvas.height );
+                            ctx.stroke();
+                            beat++;
+                            x += pixelsPerBeat;                           
+                        }
+                    }
+
                     window.addEventListener("resize", (event) => {
                         document.querySelector('#zoomDiv input').setAttribute('max', waveDisplay.maxZoom);
                         ctx.canvas.width = container.offsetWidth * window.devicePixelRatio;
                         ctx.canvas.height = container.offsetHeight * 0.15 * window.devicePixelRatio;
+                        render(waveDisplay);
                     });
 
                     window['waveDisplay'] = waveDisplay;
@@ -129,6 +135,12 @@
                     let scale = document.querySelector('#scaleDiv input');
                     scale.addEventListener('input', (e)=>{
                         waveDisplay.scale = Number(e.target.value);
+                    });   
+
+                    let bpmSlider = document.querySelector('#bpmDiv input');
+                    bpmSlider.addEventListener('input', (e)=>{
+                        bpmValue = Number(e.target.value);
+                        render(waveDisplay);
                     });   
 
                     // A way to obtain a time in seconds in the wave form.
