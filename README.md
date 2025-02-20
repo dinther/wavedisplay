@@ -46,7 +46,7 @@ fetch('./I_have_been_waiting_for_you.mp3')
   .then(response => response.arrayBuffer())
   .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
   .then(audioBuffer => {
-    let myNumberArray = audioBufer.getChannelData(0); //  We only want one channel
+    let myNumberArray = audioBuffer.getChannelData(0); //  We only want one channel
 
     console.log(myNumberArray);
 
