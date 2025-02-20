@@ -64,7 +64,7 @@ Below the code to put WaveDisplay to work.
 
 ```
 let waveDisplay = new WaveDisplay({
-  data: audioBufer.getChannelData(0),
+  data: audioBuffer.getChannelData(0),
   parent: document.querySelector('#container'),
   samplesPerPoint: 60,
   sampleRate: audioBuffer.sampleRate,
